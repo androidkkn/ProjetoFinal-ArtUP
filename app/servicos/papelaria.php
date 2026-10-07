@@ -1,3 +1,5 @@
+<?php require_once __DIR__ . '/../../include/functions.php'; ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -14,9 +16,9 @@
         <section class="form">
             <form action="" method="post">
                 <!--  -->
-                <label for="tamanhos">Escolha o tamanho da impressão</label>
+                <label for="tamanho">Escolha o tamanho da impressão</label>
                 <br>
-                <select name="tamanhos" id="tamanhos">
+                <select name="tamanho" id="tamanho">
                     <option value="A1">A1</option>
                     <option value="A2">A2</option>
                     <option value="A3">A3</option>
@@ -28,33 +30,14 @@
                 </select>
                 <br>
                 <!--  -->
-                <label for="tipos">Escolha o tipo de folha e gramatura</label>
+                <label for="tipo">Escolha o tipo de folha e gramatura</label>
                 <br>
-                <input type="text" name="tipos" id="tipos" list="lsttipopp">
-                <datalist id="lsttipopp">
-                    <option value="Sulfite">75g (padrão)</option>
-                    <option value="Sulfite">90g</option>
-                    <option value="Sulfite">120g</option>
-                    <option value="Sulfite">180g</option>
-                    <option value="Offset">75g</option>
-                    <option value="Offset">90g (padrão)</option>
-                    <option value="Offset">120g</option>
-                    <option value="Offset">150g</option>
-                    <option value="Offset">170g</option>
-                    <option value="Offset">180g</option>
-                    <option value="Offset">240g</option>
-                    <option value="Couché">90g (panfletos)</option>
-                    <option value="Couché">115g (panfletos)</option>
-                    <option value="Couché">150g (catálogos e pequenos cartazes)</option>
-                    <option value="Couché">170g (catálogos e pequenos cartazes)</option>
-                    <option value="Couché">250g (cartões de visita, convites e capas de revistas)</option>
-                    <option value="Couché">300g (cartões de visita, convites e capas de revistas)</option>
-                    <option value="Fotográfico">90g</option>
-                    <option value="Fotográfico">135g</option>
-                    <option value="Fotográfico">180g (padrão)</option>
-                    <option value="Fotográfico">230g</option>
-                    <option value="Fotográfico">260g</option>
-                </datalist>
+                <select name="tipo" id="tipo">
+                    <option value="Sulfite">Sulfite</option>
+                    <option value="Offset">Offset</option>
+                    <option value="Couché">Couché</option>
+                    <option value="Fotográfico">Fotográfico</option>
+                </select>
                 </input>
                 <br>
                 <!-- Quantidade -->
@@ -70,6 +53,24 @@
                 
             </form>
         </section>
+        <?php 
+        if ($_SERVER['REQUEST_METHOD'] == "POST"){
+            if ($_POST['tipo'] == "Sulfite") {
+                $id_tipo = 8;
+            } elseif ($_POST['tipo'] == "Offset") {
+                $id_tipo = 11;
+            } elseif ($_POST['tipo'] == "Couché") {
+                $id_tipo = 10;
+            } elseif ($_POST['tipo'] == "Fotográfico") {
+                $id_tipo = 9;
+            } else {
+                echo "Opção Inválida, tente novamente.";
+            };
+            cproduto($conexao, 2, $_POST['quantidade'], null, null, $_POST['tamanho'], null, $id_tipo);
+        };
+        
+
+        ?>
     </main>
 
     <?php include __DIR__ . '/../../include/footer.php' ?>

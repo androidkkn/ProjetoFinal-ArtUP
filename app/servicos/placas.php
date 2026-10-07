@@ -1,3 +1,5 @@
+<?php require_once __DIR__ . '/../../include/functions.php'; ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -40,6 +42,13 @@
                  <input type="submit" value="Adicionar ao carrinho">
             </form>
         </section>
+        <?php 
+        if ($_SERVER['REQUEST_METHOD'] == "POST"){
+            cproduto($conexao, 3, $_POST['quantidade'], $_POST['larg'], $_POST['compr'], null, $_POST['grossura'], null);
+        };
+        
+
+        ?>
     </main>
 
     <?php include __DIR__ . '/../../include/footer.php' ?>

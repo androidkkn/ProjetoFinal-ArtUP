@@ -1,3 +1,5 @@
+<?php require_once __DIR__ . '/../../include/functions.php'; ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -20,12 +22,12 @@
                 <input type="number" name="larg" id="larg" placeholder="Largura">
                 <br>
                 <!-- Input acabamento -->
-                <label for="acabamento">Tipo de acabamento Banner</label>
-                <select name="acabamento" id="acabamento">
+                <label for="tipo">Tipo de acabamento Banner</label>
+                <select name="tipo" id="tipo">
                     <option value="PVC">PVC</option>
                     <option value="BM">Barra de madeira</option>
                     <option value="BA">Barra de aluminho</option>
-                    <option value="B">Brisilha</option>
+                    <option value="I">Ilhós</option>
                 </select>
                 <br>
                 <!-- Quantidade -->
@@ -40,6 +42,22 @@
                  <input type="submit" value="Adicionar ao carrinho">  
             </form>
         </section>
+        <?php 
+        if ($_SERVER['REQUEST_METHOD'] == "POST"){
+            if ($_POST['tipo'] == "PVC") {
+                $id_tipo = 4;
+            } elseif ($_POST['tipo'] == "BM") {
+                $id_tipo = 5;
+            } elseif ($_POST['tipo'] == "BA") {
+                $id_tipo = 6;
+            } elseif ($_POST['tipo'] == "I") {
+                $id_tipo = 7;
+            } else {
+                echo "Opção Inválida, tente novamente.";
+            };
+            cproduto($conexao, 4, $_POST['quantidade'], $_POST['larg'], $_POST['compr'], null, null, $id_tipo);
+            calcTamanho($conexao,$_POST['compr'],$_POST['larg']);}
+        ?>
     </main>
 
     <?php include __DIR__ . '/../../include/footer.php' ?>
