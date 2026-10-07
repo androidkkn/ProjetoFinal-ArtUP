@@ -28,6 +28,10 @@
 
                 </select>
                 <br>
+                <!-- Quantidade -->
+                 <label for="quantidade">Quantidade</label>
+                 <input type="number" name="quantidade" id="quantidade">
+                 <br>
                 <!-- Input da arte -->
                 <label for="arte">Insira sua Arte aqui</label>
                 <input type="file" name="arte" id="arte" accept="image/*">
