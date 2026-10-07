@@ -1,0 +1,47 @@
+```mermaid
+erDiagram
+usuarios ||--o{ carrinho : possui
+usuarios ||--o{ pedido : faz
+pedido ||--o{ produto : contem
+carrinho ||--o{ produto : contem
+categorias ||--o{ produto : contem
+
+
+usuarios {
+    ID int PK "NOT NULL"
+    nome varchar(255) "NOT NULL"
+    email varchar(255) "NOT NULL"
+    senha password "NOT NULL"
+    nivel boolean "NOT NULL"
+}
+
+categorias {
+    ID int PK "NOT NULL"
+    nome varchar(255) "NOT NULL"
+}
+
+produto {
+    ID int PK "NOT NULL"
+    ID_categoria int FK "NOT NULL"
+    Quantidade int "NOT NULL"
+    Largura float 
+    Comprimento float
+    tamanho varchar(50)
+    grossura varchar(3)
+    acabamento varchar(20)
+    tipo varchar(50)
+}
+
+pedido {
+    ID int PK "NOT NULL"
+    ID_usuario int FK "NOT NULL"
+    ID_produto int FK "NOT NULL"
+    data datetime "NOT NULL"
+    status varchar(50) "NOT NULL"
+}
+
+carrinho {
+    ID int PK "NOT NULL"
+    ID_usuario int FK "NOT NULL"
+    ID_pedido int FK "NOT NULL"
+}
