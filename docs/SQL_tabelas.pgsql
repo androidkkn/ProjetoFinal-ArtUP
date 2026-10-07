@@ -1,5 +1,6 @@
 -- PostgreSQL: criacao do modelo em um banco vazio.
--- Para atualizar as tabelas existentes, use atualizar_modelo.pgsql.
+-- Se as sete tabelas ja existem, mas falta produto.id_tipo,
+-- use corrigir_produto.pgsql uma vez, em vez deste script de criacao.
 -- As relacoes seguem os campos FK declarados em diagramas.md.
 
 CREATE TABLE usuarios (
