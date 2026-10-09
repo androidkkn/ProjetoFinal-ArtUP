@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/include/functions.php';
+require_once __DIR__ . '/database/connect.php';
 $produtos_antes = $conexao->query('SELECT COUNT(*) FROM produto')->fetchColumn();
 $itens_antes = $conexao->query('SELECT COUNT(*) FROM carrinho')->fetchColumn();
 $pedidos_antes = $conexao->query('SELECT * FROM pedido ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);

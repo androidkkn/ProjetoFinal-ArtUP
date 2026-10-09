@@ -306,7 +306,7 @@ function listar_produtos_admin($conexao)
                 JOIN produto p ON p.id = pe.id_produto
                 JOIN categorias c ON c.id = p.id_categoria
                 LEFT JOIN tipos_de_produto t ON t.id = p.id_tipo
-                WHERE pe.status <> 'carrinho'
+                WHERE pe.status <> \'carrinho\'
                 ORDER BY pe.data DESC, pe.id DESC')->fetchAll(PDO::FETCH_ASSOC),
         ];
     } catch (PDOException $e) {
