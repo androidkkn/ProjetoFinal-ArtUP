@@ -1,5 +1,5 @@
-<?php 
-include __DIR__ . '/credenciais.php';
+<?php
+require_once __DIR__ . '/credenciais.php';
 $host = $ip;
 $dbname = $nomeDB;
 $user = $nomeUSR;
@@ -9,10 +9,11 @@ try {
     $conexao = new PDO(
         "pgsql:host=$host;dbname=$dbname",
         $user,
-        $pass
+        $pass,
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
     );
-    echo "Conexão realizada com sucesso!<br>";
 } catch (PDOException $e){
-    echo "Erro: ". $e->getMessage();
+    error_log('Erro de conexao com o PostgreSQL: ' . $e->getMessage());
+    http_response_code(500);
+    exit('Nao foi possivel conectar ao banco de dados.');
 }
-?>
