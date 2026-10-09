@@ -1,6 +1,6 @@
 -- Executar uma vez no banco que ainda usa carrinho.id_pedido.
 -- Itens em verificacao passam a referenciar o produto diretamente.
--- Seus dados e precos sao preservados. Pedidos fora do carrinho permanecem intactos.
+-- Seus dados e precos sao preservados. Nenhum registro antigo de pedido e excluido.
 BEGIN;
 
 LOCK TABLE carrinho, pedido, produto IN ACCESS EXCLUSIVE MODE;
@@ -21,9 +21,6 @@ BEGIN
     END IF;
 END $$;
 
-CREATE TEMP TABLE pedidos_em_verificacao ON COMMIT DROP AS
-    SELECT DISTINCT id_pedido AS id FROM carrinho;
-
 ALTER TABLE carrinho
     ADD COLUMN id_produto INT,
     ADD COLUMN preco_unitario NUMERIC(12,2) CHECK (preco_unitario >= 0),
@@ -34,11 +31,13 @@ SET id_produto = pe.id_produto, preco_unitario = pe.preco_unitario, valor_total 
 FROM pedido pe WHERE pe.id = c.id_pedido;
 
 ALTER TABLE carrinho
-    DROP COLUMN id_pedido,
+    ALTER COLUMN id_pedido DROP NOT NULL,
     ALTER COLUMN id_produto SET NOT NULL,
     ADD CONSTRAINT fk_carrinho_produto FOREIGN KEY (id_produto) REFERENCES produto (id),
     ADD CONSTRAINT uq_carrinho_produto UNIQUE (id_produto);
 
-DELETE FROM pedido WHERE id IN (SELECT id FROM pedidos_em_verificacao) AND status = 'carrinho';
+-- id_pedido permanece como referencia historica dos itens antigos.
+-- Novos itens usam somente id_produto. A aplicacao oculta os antigos
+-- registros com status 'carrinho' nas listagens de pedidos confirmados.
 
 COMMIT;

@@ -1,3 +1,6 @@
+<?php require_once __DIR__ . '/../include/functions.php';
+require_once __DIR__ . '/../login/verifica_user.php'; ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 

@@ -1,3 +1,5 @@
+<?php require_once 'login/verifica_user.php'; ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
     
