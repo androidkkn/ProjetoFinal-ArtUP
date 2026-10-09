@@ -9,7 +9,7 @@ O projeto possui a estrutura inicial de um site para a gráfica ArtUP, com pági
 - **Rodapé (`include/footer.php`):** criado como arquivo compartilhado, ainda com conteúdo provisório.
 - **Catálogo (`app/catalogo.php`):** apresenta oito categorias: produtos em lona, adesivos, placas, produtos rígidos, estampa em roupas, impressões 3D, papelaria e outros produtos. Os links das categorias ainda não têm destino definido.
 - **Meus pedidos (`app/meus_pedidos.php`):** contém o título da página, um campo de pesquisa pelo número do produto e uma seção reservada para exibir os pedidos. A pesquisa e a listagem ainda não possuem processamento implementado.
-- **Carrinho (`app/carrinho.php`):** possui a estrutura básica da página, com cabeçalho e rodapé. A inclusão e a exibição de itens ainda não foram implementadas.
+- **Carrinho (`app/carrinho.php`):** guarda e exibe produtos do cliente em verificação, sem criar pedidos. O cliente pode excluir um item ou clicar em “Confirmar pedidos” para transferir os itens para `pedido`, com status `pendente`. Os valores cadastrados nos itens são preservados na confirmação. Registros antigos com status `carrinho` permanecem no banco como histórico e ficam fora da listagem de pedidos confirmados. A migração está em `carrinho_em_verificacao.pgsql`.
 - **Administração (`admin/`):** a página `estatisticas.php` contém uma navegação inicial para estatísticas, orçamento, pedidos, produtos e Kanban. Os arquivos `pedidos.php` e `produtos.php` estão vazios; as páginas de orçamento e Kanban referenciadas no menu ainda não existem.
 
 ## Como o projeto foi organizado
