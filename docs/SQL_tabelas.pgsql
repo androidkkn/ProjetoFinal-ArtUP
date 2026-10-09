@@ -63,6 +63,8 @@ CREATE TABLE pedido (
     ID_produto INT NOT NULL,
     data TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     status VARCHAR(50) NOT NULL,
+    preco_unitario NUMERIC(12,2) NULL CHECK (preco_unitario >= 0),
+    valor_total NUMERIC(12,2) NULL CHECK (valor_total >= 0),
     PRIMARY KEY (ID),
     CONSTRAINT fk_pedido_usuario
         FOREIGN KEY (ID_usuario) REFERENCES usuarios (ID),
