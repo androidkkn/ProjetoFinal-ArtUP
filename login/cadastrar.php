@@ -1,4 +1,23 @@
-<?php require_once __DIR__ . '/../include/functions.php'; ?>
+<?php
+require_once __DIR__ . '/../include/functions.php';
+
+$erroCadastro = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nome = trim($_POST['nome'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $senhaInformada = $_POST['senha'] ?? '';
+
+    if ($nome === '' || strlen($nome) > 255 || strlen($email) > 255
+        || !filter_var($email, FILTER_VALIDATE_EMAIL) || $senhaInformada === '') {
+        $erroCadastro = 'Preencha nome, email valido e senha.';
+    } elseif (cadastrar_user($conexao, $nome, $email, $senhaInformada, false)) {
+        header('Location: login.php');
+        exit();
+    } else {
+        $erroCadastro = 'Nao foi possivel cadastrar o usuario.';
+    }
+}
+?>
 
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -23,14 +42,7 @@
                 <div>
                     <input type="password" name="senha" id="senha" placeholder="digite sua senha">
                 </div>
-                <div>
-                    <label for="nivel">Tipo de usuario</label>
-                    <br>
-                    <select name="nivel" id="nivel" >
-                        <option value="CL">Cliente</option>
-                        <option value="ADM">Admin</option>
-                    </select>
-                </div>
+                <br>
                 <div>
                     <input type="submit" value="Cadastrar">
                 </div>
@@ -39,22 +51,9 @@
                 <a href="login.php">Caso já tenha cadastro clique aqui</a>
             </div>
         </section>
-        <?php
-
-        if ($_SERVER['REQUEST_METHOD'] == "POST") {
-            if ($_POST['nivel'] == "CL") {
-                $tipo = 0;
-            } elseif ($_POST['nivel'] == "ADM") {
-                $tipo = 1;
-            } else {
-                echo "Opção Inválida, tente novamente.";
-            }
-            cadastrar_user($conexao, $_POST['nome'], $_POST['email'], $_POST['senha'], $tipo);
-            // header("location: /../index.php");
-            // exit();
-        }
-
-        ?>
+        <?php if ($erroCadastro !== ''): ?>
+            <p><?= htmlspecialchars($erroCadastro, ENT_QUOTES, 'UTF-8') ?></p>
+        <?php endif; ?>
     </main>
 </body>
 
