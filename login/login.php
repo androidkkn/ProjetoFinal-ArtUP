@@ -5,14 +5,14 @@ session_start();
 $erroLogin = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email'] ?? '');
+    $email = normalizar_email($_POST['email'] ?? null);
     $senhaInformada = $_POST['senha'] ?? '';
-    $usuario = filter_var($email, FILTER_VALIDATE_EMAIL)
+    $usuario = $email !== false && is_string($senhaInformada)
         ? consulta_user($conexao, $email)
         : false;
 
     $senhaValida = false;
-    if ($usuario && $senhaInformada !== '') {
+    if ($usuario && is_string($senhaInformada) && $senhaInformada !== '') {
         // As contas antigas podem ter sido cadastradas sem hash.
         $senhaSemHash = password_get_info($usuario['senha'])['algoName'] === 'unknown';
         $senhaValida = $senhaSemHash
