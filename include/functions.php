@@ -12,28 +12,42 @@ function formatar_preco($valor)
     return 'R$ ' . $reais . ',' . str_pad(substr($centavos, 0, 2), 2, '0');
 }
 
-function calcTamanho($conexao, $c, $l)
+function validar_inteiro_positivo($valor)
 {
-    $tamanho = $c . $l;
-};
+    return filter_var($valor, FILTER_VALIDATE_INT, [
+        'options' => ['min_range' => 1, 'max_range' => 2147483647],
+    ]);
+}
+
+function usuario_e_admin()
+{
+    return !empty($_SESSION['id']) && ($_SESSION['admin'] ?? false) === true;
+}
+
+function dimensao_valida($valor)
+{
+    if (!is_numeric($valor)) {
+        return false;
+    }
+
+    $numero = (float) $valor;
+    return is_finite($numero) && $numero > 0 && $numero <= 3.402823466e38;
+}
 
 function cproduto($conexao, $id_categoria, $quantidade, $largura, $comprimento, $tamanho, $grossura, $id_tipo)
 {
-    $id_usuario = filter_var($_SESSION['id'] ?? null, FILTER_VALIDATE_INT);
-    $quantidade = filter_var($quantidade, FILTER_VALIDATE_INT);
-    if (!$id_usuario || $id_usuario < 1 || !$quantidade || $quantidade < 1
-        || $quantidade > 2147483647 || !in_array($id_categoria, [1, 2, 3, 4], true)) {
+    $id_usuario = validar_inteiro_positivo($_SESSION['id'] ?? null);
+    $quantidade = validar_inteiro_positivo($quantidade);
+    if ($id_usuario === false || $quantidade === false
+        || !in_array($id_categoria, [1, 2, 3, 4], true)) {
         return false;
     }
 
     if ($id_categoria === 2 && !in_array($tamanho, ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8'], true)) {
         return false;
     }
-    foreach ($id_categoria === 2 ? [] : [$largura, $comprimento] as $dimensao) {
-        if (!is_numeric($dimensao) || !is_finite((float) $dimensao)
-            || (float) $dimensao <= 0 || (float) $dimensao > 3.402823466e38) {
-            return false;
-        }
+    if ($id_categoria !== 2 && (!dimensao_valida($largura) || !dimensao_valida($comprimento))) {
+        return false;
     }
     if ($id_categoria === 3 && (!is_scalar($grossura)
         || !in_array((string) $grossura, ['1', '2', '3'], true))) {
@@ -91,8 +105,8 @@ function meus_pedidos($conexao, $id_usuario, $id_produto = null)
         $filtros['produto'] = $id_produto;
     }
     foreach ($filtros as $nome => $valor) {
-        $id = filter_var($valor, FILTER_VALIDATE_INT);
-        if (!$id || $id < 1 || $id > 2147483647) {
+        $id = validar_inteiro_positivo($valor);
+        if ($id === false) {
             return false;
         }
         $filtros[$nome] = $id;
@@ -152,10 +166,9 @@ function carrinho($conexao, $id_usuario)
 
 function excluir_produto_carrinho($conexao, $id_usuario, $id_carrinho)
 {
-    $id_usuario = filter_var($id_usuario, FILTER_VALIDATE_INT);
-    $id_carrinho = filter_var($id_carrinho, FILTER_VALIDATE_INT);
-    if (!$id_usuario || $id_usuario < 1 || $id_usuario > 2147483647
-        || !$id_carrinho || $id_carrinho < 1 || $id_carrinho > 2147483647) {
+    $id_usuario = validar_inteiro_positivo($id_usuario);
+    $id_carrinho = validar_inteiro_positivo($id_carrinho);
+    if ($id_usuario === false || $id_carrinho === false) {
         return false;
     }
 
@@ -187,8 +200,8 @@ function excluir_produto_carrinho($conexao, $id_usuario, $id_carrinho)
 
 function confirmar_pedidos($conexao, $id_usuario)
 {
-    $id_usuario = filter_var($id_usuario, FILTER_VALIDATE_INT);
-    if (!$id_usuario || $id_usuario < 1 || $id_usuario > 2147483647
+    $id_usuario = validar_inteiro_positivo($id_usuario);
+    if ($id_usuario === false
         || (int) ($_SESSION['id'] ?? 0) !== $id_usuario) {
         return false;
     }
@@ -220,7 +233,7 @@ const STATUS_PEDIDOS = [
 
 function listar_pedidos_admin($conexao, $pesquisa = '')
 {
-    if (empty($_SESSION['id']) || ($_SESSION['admin'] ?? false) !== true || !is_string($pesquisa)) {
+    if (!usuario_e_admin() || !is_string($pesquisa)) {
         return false;
     }
 
@@ -244,8 +257,7 @@ function listar_pedidos_admin($conexao, $pesquisa = '')
     try {
         $stmt = $conexao->prepare($sql);
         if ($pesquisa !== '') {
-            $id = filter_var($pesquisa, FILTER_VALIDATE_INT,
-                ['options' => ['min_range' => 1, 'max_range' => 2147483647]]) ?: 0;
+            $id = validar_inteiro_positivo($pesquisa) ?: 0;
             $stmt->bindValue(':nome', '%' . $pesquisa . '%');
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         }
@@ -259,9 +271,8 @@ function listar_pedidos_admin($conexao, $pesquisa = '')
 
 function alterar_status_pedido($conexao, $id_pedido, $status)
 {
-    $id_pedido = filter_var($id_pedido, FILTER_VALIDATE_INT);
-    if (empty($_SESSION['id']) || ($_SESSION['admin'] ?? false) !== true
-        || !$id_pedido || $id_pedido < 1 || $id_pedido > 2147483647
+    $id_pedido = validar_inteiro_positivo($id_pedido);
+    if (!usuario_e_admin() || $id_pedido === false
         || !is_string($status) || !isset(STATUS_PEDIDOS[$status])) {
         return false;
     }
@@ -288,7 +299,7 @@ function validar_preco($valor)
 
 function listar_produtos_admin($conexao)
 {
-    if (empty($_SESSION['id']) || ($_SESSION['admin'] ?? false) !== true) {
+    if (!usuario_e_admin()) {
         return false;
     }
     try {
@@ -317,10 +328,9 @@ function listar_produtos_admin($conexao)
 
 function editar_tipo_produto($conexao, $id_tipo, $nome, $valor_base)
 {
-    $id_tipo = filter_var($id_tipo, FILTER_VALIDATE_INT);
+    $id_tipo = validar_inteiro_positivo($id_tipo);
     $valor_base = validar_preco($valor_base);
-    if (empty($_SESSION['id']) || ($_SESSION['admin'] ?? false) !== true
-        || !$id_tipo || $id_tipo < 1 || $id_tipo > 2147483647 || $valor_base === false
+    if (!usuario_e_admin() || $id_tipo === false || $valor_base === false
         || !is_string($nome) || !preg_match('/\A.{1,255}\z/us', trim($nome))) {
         return false;
     }
@@ -336,10 +346,9 @@ function editar_tipo_produto($conexao, $id_tipo, $nome, $valor_base)
 
 function editar_categoria_preco($conexao, $id_categoria, $nome, $valor_metro)
 {
-    $id_categoria = filter_var($id_categoria, FILTER_VALIDATE_INT);
+    $id_categoria = validar_inteiro_positivo($id_categoria);
     $valor_metro = is_string($valor_metro) && trim($valor_metro) === '' ? null : validar_preco($valor_metro);
-    if (empty($_SESSION['id']) || ($_SESSION['admin'] ?? false) !== true
-        || !$id_categoria || $id_categoria < 1 || $id_categoria > 2147483647 || $valor_metro === false
+    if (!usuario_e_admin() || $id_categoria === false || $valor_metro === false
         || !is_string($nome) || !preg_match('/\A.{1,255}\z/us', trim($nome))) {
         return false;
     }
@@ -370,11 +379,9 @@ function editar_categoria_preco($conexao, $id_categoria, $nome, $valor_metro)
 
 function editar_item_pedido($conexao, $id_produto, $quantidade, $largura, $comprimento, $tamanho, $grossura)
 {
-    $id_produto = filter_var($id_produto, FILTER_VALIDATE_INT);
-    $quantidade = filter_var($quantidade, FILTER_VALIDATE_INT);
-    if (empty($_SESSION['id']) || ($_SESSION['admin'] ?? false) !== true
-        || !$id_produto || $id_produto < 1 || $id_produto > 2147483647
-        || !$quantidade || $quantidade < 1 || $quantidade > 2147483647) {
+    $id_produto = validar_inteiro_positivo($id_produto);
+    $quantidade = validar_inteiro_positivo($quantidade);
+    if (!usuario_e_admin() || $id_produto === false || $quantidade === false) {
         return false;
     }
     try {
@@ -391,11 +398,8 @@ function editar_item_pedido($conexao, $id_produto, $quantidade, $largura, $compr
             }
             $largura = $comprimento = null;
         } else {
-            foreach ([$largura, $comprimento] as $dimensao) {
-                if (!is_numeric($dimensao) || !is_finite((float) $dimensao)
-                    || (float) $dimensao <= 0 || (float) $dimensao > 3.402823466e38) {
-                    return false;
-                }
+            if (!dimensao_valida($largura) || !dimensao_valida($comprimento)) {
+                return false;
             }
             $tamanho = null;
         }
