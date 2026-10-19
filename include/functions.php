@@ -420,25 +420,64 @@ function editar_item_pedido($conexao, $id_produto, $quantidade, $largura, $compr
 
 // Funções de login
 
-function cadastrar_user($conexao, $nome, $email, $senha, $admin)
+function normalizar_email($valor)
 {
+    if (!is_string($valor)) {
+        return false;
+    }
+    $email = strtolower(trim($valor));
+    return strlen($email) <= 255 && filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : false;
+}
+
+function validar_senha($senha)
+{
+    return is_string($senha) && !str_contains($senha, "\0")
+        && preg_match('/\p{L}/u', $senha) === 1 && preg_match('/[0-9]/', $senha) === 1;
+}
+
+function cadastrar_user($conexao, $nome, $email, $senha, $admin, &$erro = null)
+{
+    $erro = '';
+    $email = normalizar_email($email);
+    if (!is_string($nome) || trim($nome) === '' || strlen($nome) > 255 || $email === false) {
+        $erro = 'Informe nome e e-mail válidos.';
+        return false;
+    }
+    if (!validar_senha($senha)) {
+        $erro = 'A senha deve conter pelo menos uma letra e um número.';
+        return false;
+    }
+    if (!defined('PASSWORD_ARGON2ID')) {
+        error_log('O cadastro exige PHP com suporte a Argon2id para preservar senhas longas.');
+        $erro = 'Não foi possível cadastrar o usuário. Contate o administrador.';
+        return false;
+    }
     $sql = "INSERT INTO usuarios (nome, email, senha, admin) VALUES (:nome, :email, :senha, :admin)";
     try {
         $stmt = $conexao->prepare($sql);
-        $stmt->bindValue(':nome', $nome);
+        $stmt->bindValue(':nome', trim($nome));
         $stmt->bindValue(':email', $email);
-        $stmt->bindValue(':senha', password_hash($senha, PASSWORD_DEFAULT));
+        $stmt->bindValue(':senha', password_hash($senha, PASSWORD_ARGON2ID));
         $stmt->bindValue(':admin', (bool) $admin, PDO::PARAM_BOOL);
         return $stmt->execute();
-    } catch (PDOException $e) {
+    } catch (Throwable $e) {
+        if ($e instanceof PDOException && (string) $e->getCode() === '23505') {
+            $erro = 'Este e-mail já está cadastrado.';
+            return false;
+        }
         error_log('Erro ao cadastrar usuario: ' . $e->getMessage());
+        $erro = 'Não foi possível cadastrar o usuário. Tente novamente.';
         return false;
     }
 }
 
 function consulta_user($conexao, $email)
 {
-    $sql = "SELECT id, email, senha, admin FROM usuarios WHERE email = :email";
+    $email = normalizar_email($email);
+    if ($email === false) {
+        return false;
+    }
+    $sql = "SELECT id, email, senha, admin FROM usuarios WHERE lower(trim(email)) = :email";
     try {
         $stmt = $conexao->prepare($sql);
         $stmt->bindParam(":email", $email);
