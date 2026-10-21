@@ -61,7 +61,8 @@ Common business tree (not visual context):
   - common business tree
   - include/estatisticas.php (aggregation; no UI)
   - common header tree
-  - admin/estatisticas.css (all current styling)
-  - inline footer
+  - css/estilo.css (shared shell and visual foundations)
+  - admin/estatisticas.css (statistics components)
+  - include/footer.php
 
-Only local logo exists in the starting implementation: img/logos/logo.png. Five new generic print-product images are now in img/; see img/README.md for provenance and intended use.
+All HTML pages load css/estilo.css and the shared footer. Statistics additionally loads admin/estatisticas.css for its own components. Registration explicitly loads include/navegacao.php before the CSS URL is rendered. Home, catalogue and product forms use the five generic images in img/; see img/README.md for provenance. These snapshots were refreshed during review of the Antigravity visual integration.

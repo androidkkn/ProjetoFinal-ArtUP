@@ -17,7 +17,7 @@
 ## SiteFooter
 - Source: include/footer.php
 - Category: layout
-- Description: Existing footer is a placeholder requiring replacement.
+- Description: Dark shared footer with ArtUP name and copyright; implemented by visual integration.
 - Extractable props: isLoggedIn, homeHref, catalogueHref.
 - Hardcoded: ArtUP identity and concise print-shop description.
 

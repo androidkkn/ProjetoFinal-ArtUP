@@ -4,7 +4,7 @@ PHP file routes, no router or frontend build. Base paths resolved by include/nav
 
 | URL | Entry | Purpose |
 | --- | --- | --- |
-| /index.php | index.php | Authenticated home; currently placeholder content and missing images |
+| /index.php | index.php | Authenticated home with hero, steps and four illustrated service cards |
 | /login/login.php | login/login.php | Sign in |
 | /login/cadastrar.php | login/cadastrar.php | Registration |
 | /app/catalogo.php | app/catalogo.php | Four print categories |
@@ -18,4 +18,4 @@ PHP file routes, no router or frontend build. Base paths resolved by include/nav
 | /admin/produtos.php | admin/produtos.php | Edit prices and order items |
 | /admin/estatisticas.php | admin/estatisticas.php | Existing visual reference: filters, metrics, tables |
 
-All HTML pages use include/header.php and its conditional admin navigation. Most use include/footer.php; statistics has its own footer; authentication currently has no footer. Download /app/arte.php and POST /login/logout.php are action endpoints, not UI pages.
+All HTML pages use include/header.php, its conditional admin navigation, include/footer.php and css/estilo.css. Statistics adds admin/estatisticas.css for its own components. Download /app/arte.php and POST /login/logout.php are action endpoints, not UI pages.

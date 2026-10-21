@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "targets": {
+    "/": {
+      "targetKind": "existing-ui",
+      "projectId": "c2298b83-777c-4eaa-ae8d-b2c34875ffa1",
+      "baselineDraftId": "e16c4e40-2e05-4156-aa3a-49dfdbdc7232",
+      "activeDraftId": "e16c4e40-2e05-4156-aa3a-49dfdbdc7232",
+      "designSystemPath": ".superdesign/design-system.md",
+      "referenceIds": [
+        "img-logos-logo.png"
+      ],
+      "brandAssets": {
+        "logo": {
+          "assetKey": "img-logos-logo.png",
+          "url": "https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/projects/c2298b83-777c-4eaa-ae8d-b2c34875ffa1/brand-assets/img-logos-logo.png/logo.png",
+          "sourcePath": "img/logos/logo.png"
+        }
+      },
+      "contextFiles": [
+        ".superdesign/design-system.md",
+        "index.php",
+        "include/header.php",
+        "include/HeaderAdmin.php",
+        "include/footer.php",
+        "include/navegacao.php",
+        "css/estilo.css:1:480",
+        "css/estilo.css:918"
+      ],
+      "fingerprints": {
+        ".superdesign/design-system.md": "6ab242f8d416d095314b48319d3b27b1508e69568489971c428be71b9ad2b722",
+        "index.php": "8b4ab50fc7081dd328cc8ff3e5dd64fc029cff6be2837a1277be7fd5eb7e498a",
+        "include/header.php": "b3e2ef8ad898f23bb46a852be6c7dc76697740004a35e683ea454a0e31bdcd3e",
+        "include/HeaderAdmin.php": "5590c31b8e889a104efe4af1e6259a0dd0bde9789cf4603d549d098f67748d75",
+        "include/footer.php": "c7f7a4f654632b23bfa12b1be5b0361a22e0d1f3a2a8c903d149fb42ba284e9a",
+        "include/navegacao.php": "60c8167db8a82aa38df8e3de53379f67e2576346259f18d7b6a01ce8b74d0803",
+        "css/estilo.css": "33ef39e5b4cf0085751d458a6ba09ed85c34344348ee380df9f84e67170098d0"
+      },
+      "components": [
+        {
+          "name": "SiteHeader",
+          "id": "36b92836-0e1f-4a8f-9bbd-71fd70691d93",
+          "sourcePath": "include/header.php",
+          "logoAssetKey": "img-logos-logo.png",
+          "currentVersion": 2
+        },
+        {
+          "name": "SiteFooter",
+          "id": "9baf07e8-7f4f-49ee-929e-6f0f61da6328",
+          "sourcePath": "include/footer.php",
+          "currentVersion": 1
+        }
+      ],
+      "drafts": {
+        "e16c4e40-2e05-4156-aa3a-49dfdbdc7232": {
+          "title": "ArtUP — Gráfica - Home Atualizada",
+          "visualDirection": "Dark header and hero, raspberry brand, existing product imagery, services before steps; original logo preserved.",
+          "baselineVersion": 1,
+          "currentVersion": 3
+        }
+      },
+      "updatedAt": "2026-10-21T18:30:44.707Z"
+    }
+  }
+}
