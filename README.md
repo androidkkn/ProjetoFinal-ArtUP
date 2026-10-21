@@ -13,7 +13,7 @@ O projeto usa **PHP procedural, HTML/CSS e PostgreSQL via PDO**, com páginas re
 5. No carrinho, revise os itens e clique em **Confirmar pedidos**. Cada item vira um pedido, mantendo o preço aceito.
 6. Acompanhe a produção em **Meus pedidos** e, quando permitido, solicite cancelamento.
 
-Administradores também podem editar tarifas e itens, mudar status, aprovar/recusar cancelamentos, excluir pedidos e consultar o painel por período. Os status conhecidos são `pendente`, `em producao`, `concluido` e `cancelado`.
+Administradores também podem editar tarifas e itens, mudar status, aprovar/recusar cancelamentos, excluir pedidos e consultar o painel por período. Os status são Pendente (`pendente`), Em produção (`em producao`), Retirada (`retirada`), Entregue (`concluido`) e Cancelado (`cancelado`). A chave `concluido` foi preservada por compatibilidade com os pedidos existentes.
 
 Em **Administração → Clientes**, o administrador consulta todos os usuários, busca por nome/e-mail/ID e abre o resumo de valores e o histórico paginado de cada conta. Veja [docs/clientes.md](docs/clientes.md).
 

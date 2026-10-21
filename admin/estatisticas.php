@@ -133,10 +133,10 @@ $maior_mes = $dados !== false ? max(1, ...array_column($dados['por_mes'], 'pedid
                         <div class="titulo-painel"><h2 id="titulo-valores">Valores dos pedidos</h2></div>
                         <dl class="lista-valores">
                             <div><dt>Não cancelados</dt><dd><?= $escapar(formatar_preco($dados['valor_nao_cancelado'])) ?></dd></div>
-                            <div><dt>Concluídos</dt><dd><?= $escapar(formatar_preco($dados['valor_concluido'])) ?></dd></div>
+                            <div><dt>Entregues</dt><dd><?= $escapar(formatar_preco($dados['valor_concluido'])) ?></dd></div>
                             <div><dt>Cancelados</dt><dd><?= $escapar(formatar_preco($dados['valor_cancelado'])) ?></dd></div>
                         </dl>
-                        <p class="nota-painel">O valor concluído já está incluído no valor não cancelado. Os preços são os registrados nos pedidos, sem recalcular a tabela de tarifas.</p>
+                        <p class="nota-painel">O valor entregue já está incluído no valor não cancelado. Os preços são os registrados nos pedidos, sem recalcular a tabela de tarifas.</p>
                         <?php if ((int) $dados['cancelamentos_pendentes'] > 0): ?>
                             <a class="botao botao-secundario" href="<?= $escapar(url_app('admin/pedidos.php')) ?>">Analisar cancelamentos</a>
                         <?php endif; ?>

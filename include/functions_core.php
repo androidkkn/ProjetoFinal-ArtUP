@@ -342,7 +342,8 @@ function confirmar_pedidos($conexao, $id_usuario)
 const STATUS_PEDIDOS = [
     'pendente' => 'Pendente',
     'em producao' => 'Em produção',
-    'concluido' => 'Concluído',
+    'retirada' => 'Retirada',
+    'concluido' => 'Entregue',
     'cancelado' => 'Cancelado',
 ];
 

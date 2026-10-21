@@ -324,6 +324,11 @@ h1 {
     color: #1b7339;
     border: 1px solid #b3e3c0;
 }
+.status-retirada {
+    background: var(--marca-clara);
+    color: var(--marca);
+    border: 1px solid #e2aac2;
+}
 .status-cancelado {
     background: #fdf2f2;
     color: #a82020;

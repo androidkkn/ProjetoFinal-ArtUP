@@ -41,6 +41,7 @@ $status_classe = [
     'pendente' => 'status-pendente',
     'em producao' => 'status-producao',
     'concluido' => 'status-concluido',
+    'retirada' => 'status-retirada',
     'cancelado' => 'status-cancelado',
 ];
 ?>

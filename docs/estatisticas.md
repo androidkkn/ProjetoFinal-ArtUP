@@ -32,7 +32,7 @@ reconstituição do estado que existia no último dia selecionado.
 | Ticket médio | Média dos valores totais preenchidos dos pedidos não cancelados, arredondada para duas casas. |
 | Clientes com pedidos | Quantidade de IDs de clientes distintos entre os pedidos do período, incluindo cancelados. Não é o total de contas cadastradas. |
 | Cancelamentos em análise | Quantidade de pedidos do período com solicitação `pendente`. Uma solicitação de um pedido criado fora do filtro não entra neste indicador. |
-| Valores concluídos/cancelados | Somas dos valores registrados nos respectivos status. O valor concluído já está dentro do valor não cancelado. |
+| Valores entregues/cancelados | Somas dos valores em `concluido` (rótulo Entregue) e `cancelado`. O valor entregue já está dentro do valor não cancelado. Retirada é exibido como status próprio e não entra no valor entregue. |
 
 Cada registro de `pedido` representa **um item confirmado**. A confirmação de um carrinho com três
 itens gera três pedidos, não um agrupamento único de compra. Quantidades de unidades são somadas
@@ -44,7 +44,7 @@ chama esses totais de receita recebida, lucro ou faturamento pago. Ele utiliza o
 
 ## Gráficos e tabelas
 
-- **Pedidos por status:** contagem e valor por situação atual. Os quatro status conhecidos aparecem
+- **Pedidos por status:** contagem e valor por situação atual. Os cinco status conhecidos aparecem
   mesmo sem ocorrências; status antigos diferentes desses também são exibidos, escapados como texto.
 - **Evolução mensal:** pedidos e cancelados pela data de criação, com o valor não cancelado. Meses sem
   movimento são preenchidos com zero. No primeiro e último mês, só entram as datas efetivamente selecionadas.

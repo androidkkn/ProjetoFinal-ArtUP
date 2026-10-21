@@ -47,7 +47,7 @@ if (!is_string($_GET['pesquisa'] ?? '') || str_contains($pesquisa, "\0")
 }
 $contexto_lista = ['pesquisa' => $pesquisa, 'pagina' => $pagina_lista ?: 1];
 $status_classe = ['pendente' => 'status-pendente', 'em producao' => 'status-producao',
-    'concluido' => 'status-concluido', 'cancelado' => 'status-cancelado'];
+    'retirada' => 'status-retirada', 'concluido' => 'status-concluido', 'cancelado' => 'status-cancelado'];
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -134,7 +134,7 @@ $status_classe = ['pendente' => 'status-pendente', 'em producao' => 'status-prod
             <div class="cliente-indicadores" aria-label="Resumo do histórico do cliente">
                 <article><h2>Pedidos registrados</h2><p><?= $numero($cliente['total_pedidos']) ?></p></article>
                 <article><h2>Em aberto</h2><p><?= $numero($cliente['em_aberto']) ?></p></article>
-                <article><h2>Concluídos</h2><p><?= $numero($cliente['concluidos']) ?></p></article>
+                <article><h2>Entregues</h2><p><?= $numero($cliente['concluidos']) ?></p></article>
                 <article><h2>Cancelados</h2><p><?= $numero($cliente['cancelados']) ?></p></article>
                 <article class="cliente-destaque"><h2>Valor não cancelado</h2><p><?= $escapar(formatar_preco($cliente['valor_nao_cancelado'])) ?></p></article>
                 <article><h2>Ticket médio</h2><p><?= $escapar(formatar_preco($cliente['ticket_medio'])) ?></p></article>

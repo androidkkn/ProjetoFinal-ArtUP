@@ -20,7 +20,7 @@ A ficha mostra nome, e-mail, perfil e último pedido, seguidos dos indicadores:
 | --- | --- |
 | Pedidos registrados | Registros do usuário em `pedido`, excluindo o status legado `carrinho`; inclui cancelados. |
 | Em aberto | Pedidos `pendente` ou `em producao`. |
-| Concluídos / cancelados | Contagens de `concluido` e `cancelado`, respectivamente. |
+| Entregues / cancelados | Contagens de `concluido` (rótulo Entregue) e `cancelado`, respectivamente; Retirada não é contado como Entregue. |
 | Valor não cancelado | Soma de `pedido.valor_total` nos pedidos cujo status não é `cancelado`. |
 | Ticket médio | Média dos valores preenchidos dos pedidos não cancelados, arredondada para duas casas no PostgreSQL. |
 | Itens no carrinho | Quantidade de linhas do usuário em `carrinho`; não é soma de unidades nem pedido confirmado. |
