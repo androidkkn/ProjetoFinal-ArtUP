@@ -16,4 +16,5 @@ try {
     error_log('Erro de conexao com o PostgreSQL: ' . $e->getMessage());
     http_response_code(500);
     exit('Nao foi possivel conectar ao banco de dados.');
-}
+};
+?>
