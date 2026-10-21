@@ -1,0 +1,32 @@
+.pagina-clientes > .cabecalho-secao { margin-bottom: 24px; }
+.pagina-clientes .subtitulo { margin-bottom: 0; }
+.cliente-identidade { min-width: 200px; }
+.cliente-identidade span, .cliente-data { display: block; margin-top: 4px; color: var(--secundario); font-size: 12px; font-weight: 400; }
+.cliente-cadastro { border: 1px solid var(--borda); border-radius: 12px; padding: 24px; background: white; margin: 24px 0; overflow-wrap: anywhere; }
+.cliente-cadastro h2 { margin: 0; font-size: 24px; }
+.cliente-cadastro dl { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 24px; margin: 24px 0 0; }
+.cliente-cadastro dt { color: var(--secundario); font-size: 12px; font-weight: 650; }
+.cliente-cadastro dd { margin: 6px 0 0; }
+.cliente-cadastro dl > div { min-width: 0; }
+.cliente-indicadores { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 24px; }
+.cliente-indicadores article { min-width: 0; padding: 20px; border: 1px solid var(--borda); border-radius: 12px; background: white; }
+.cliente-indicadores h2 { font-size: 12px; color: var(--secundario); margin: 0; font-weight: 600; }
+.cliente-indicadores p { font-size: clamp(22px, 2.5vw, 30px); font-weight: 750; letter-spacing: -.03em; margin: 10px 0 0; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.cliente-indicadores .cliente-destaque { background: var(--marca-clara); border-color: #e2aac2; }
+.cliente-destaque p { color: var(--marca); }
+.paginacao-clientes { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 16px; margin: 24px 0; }
+.paginacao-clientes p, .nota-clientes { font-size: 13px; color: var(--secundario); }
+.nota-clientes { line-height: 1.6; margin-top: 24px; }
+@media (max-width: 850px) {
+    .cliente-indicadores { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .cliente-cadastro dl { grid-template-columns: 1fr; gap: 16px; }
+}
+@media (max-width: 540px) {
+    .cliente-cadastro { padding: 20px 16px; }
+    .cliente-indicadores { gap: 10px; }
+    .cliente-indicadores article { padding: 16px 12px; }
+}
+@media print {
+    .paginacao-clientes { display: none; }
+    .cliente-indicadores article, .cliente-cadastro { break-inside: avoid; }
+}

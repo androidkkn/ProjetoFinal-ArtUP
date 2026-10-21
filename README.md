@@ -15,6 +15,8 @@ O projeto usa **PHP procedural, HTML/CSS e PostgreSQL via PDO**, com páginas re
 
 Administradores também podem editar tarifas e itens, mudar status, aprovar/recusar cancelamentos, excluir pedidos e consultar o painel por período. Os status conhecidos são `pendente`, `em producao`, `concluido` e `cancelado`.
 
+Em **Administração → Clientes**, o administrador consulta todos os usuários, busca por nome/e-mail/ID e abre o resumo de valores e o histórico paginado de cada conta. Veja [docs/clientes.md](docs/clientes.md).
+
 O painel mostra valores de pedidos, **não pagamentos recebidos ou lucro**. Não existem fluxos implementados de pagamento, envio de notificações ou recuperação de senha.
 
 ## Requisitos
@@ -209,6 +211,7 @@ ProjetoFinal-ArtUP/
 │   ├── artes.php                Validação, rascunhos, persistência e autorização de artes
 │   ├── pedidos.php              Cancelamentos, exclusão e SQL compartilhado de limpeza
 │   ├── estatisticas.php         Validação de período e consulta agregada
+│   ├── clientes.php             Consultas administrativas de usuários e histórico
 │   ├── form_produto.php         Fluxo HTTP e HTML dos quatro serviços
 │   ├── navegacao.php            URLs na raiz ou em subdiretórios
 │   ├── header.php / HeaderAdmin.php  Menus por perfil e navegação administrativa

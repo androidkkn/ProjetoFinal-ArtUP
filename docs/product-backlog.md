@@ -30,6 +30,7 @@ As estimativas são relativas: **P** pequena, **M** média, **G** grande. Respon
 | PB-008 | Solicitação de cancelamento | Cliente solicita o próprio pedido; administrador aprova/recusa e a decisão fica registrada. | Concluído |
 | PB-009 | Painel de estatísticas | Administrador filtra por datas e consulta indicadores, status, meses e categorias; cancelados e valores ausentes têm regras explícitas. | Concluído nesta entrega |
 | PB-010 | Navegação e logout | Menus refletem o perfil e a página administrativa atual; logout exige POST e token. | Concluído |
+| PB-037 | Consulta administrativa de clientes | Todos os usuários, inclusive sem pedidos, com busca, paginação, indicadores e histórico individual; dados de senha não são consultados. | Concluído |
 
 ## P0 — Antes de publicar
 

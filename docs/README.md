@@ -7,6 +7,7 @@ O [README principal](../README.md) concentra requisitos, instalação, configura
 | [precos.md](precos.md) | Fórmulas, arredondamento, centímetros, prévia e persistência dos preços. |
 | [artes.md](artes.md) | Formatos, limites, rascunhos, armazenamento e download autorizado. |
 | [pedidos.md](pedidos.md) | Solicitação/decisão de cancelamento e exclusão administrativa. |
+| [clientes.md](clientes.md) | Consulta administrativa de usuários, resumo de compras e histórico paginado de pedidos. |
 | [navegacao.md](navegacao.md) | Menus por perfil, instalação em subdiretórios e logout. |
 | [estatisticas.md](estatisticas.md) | Indicadores, filtros, consultas e verificação histórica do painel. |
 | [diagramas.md](diagramas.md) | Modelo de dados conhecido; não substitui uma migração base. |
