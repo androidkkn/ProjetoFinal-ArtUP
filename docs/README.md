@@ -1,37 +1,18 @@
-# ArtUP
+# Documentação do ArtUP
 
-Aplicação PHP procedural com PostgreSQL para orçamento e pedidos de uma gráfica.
-
-- Cadastro/login de clientes e acesso administrativo por sessão.
-- Adesivos, banners e placas com medidas em centímetros, cálculo no servidor e prévia antes da inclusão; papelaria por formato A1–A8.
-- Carrinho e confirmação atômica em pedidos, preservando o preço aceito.
-- Upload de artes PNG/JPEG/WEBP/PDF, rascunhos e download restrito ao proprietário ou administrador.
-- Administração de preços, itens e status; exclusão de pedidos por administrador.
-- Solicitação de cancelamento pelo cliente, decisão administrativa e histórico de respostas.
-- Estatísticas administrativas com filtro por período, indicadores, distribuição por status, evolução mensal e categorias.
-
-Alguns textos, o rodapé compartilhado e as imagens da loja/catálogo ainda precisam ser concluídos.
-Há achados de segurança abertos: a aprovação funcional não representa liberação para produção.
+O [README principal](../README.md) concentra requisitos, instalação, configuração, execução local, exemplos de uso e orientações de validação. Este diretório detalha as regras e o histórico do projeto.
 
 | Documento | Conteúdo |
 | --- | --- |
-| [auditoria.md](auditoria.md) | Registro histórico da auditoria, com achados, severidade e correções recomendadas. |
-| [estatisticas.md](estatisticas.md) | Indicadores, filtros, regras de valores e funcionamento do painel administrativo. |
-| [product-backlog.md](product-backlog.md) | Entregas concluídas, prioridades, histórias, critérios de aceitação e dependências. |
-| [precos.md](precos.md) | Fórmulas, arredondamento, prévia e armazenamento dos preços. |
-| [artes.md](artes.md) | Formatos, limites, rascunhos, vínculo e acesso às artes. |
-| [pedidos.md](pedidos.md) | Cancelamento, decisões e exclusão administrativa. |
-| [navegacao.md](navegacao.md) | Links por perfil, subdiretórios e logout. |
+| [precos.md](precos.md) | Fórmulas, arredondamento, centímetros, prévia e persistência dos preços. |
+| [artes.md](artes.md) | Formatos, limites, rascunhos, armazenamento e download autorizado. |
+| [pedidos.md](pedidos.md) | Solicitação/decisão de cancelamento e exclusão administrativa. |
+| [navegacao.md](navegacao.md) | Menus por perfil, instalação em subdiretórios e logout. |
+| [estatisticas.md](estatisticas.md) | Indicadores, filtros, consultas e verificação histórica do painel. |
+| [diagramas.md](diagramas.md) | Modelo de dados conhecido; não substitui uma migração base. |
+| [parametros_principais.pgsql](parametros_principais.pgsql) | Consultas e exemplos de dados iniciais; não é instalador nem seed idempotente. |
+| [auditoria.md](auditoria.md) | Registro histórico de segurança, qualidade e desempenho, com recomendações. |
+| [product-backlog.md](product-backlog.md) | Entregas, pendências, prioridades e critérios de aceitação. |
+| [manutencao.md](manutencao.md) | Simplificação conservadora, verificações e mudanças adiadas por risco funcional. |
 
-## Execução e banco
-
-A conexão atual lê `database/credenciais.php`, arquivo local ignorado no Git, com as variáveis `$ip`,
-`$nomeDB`, `$nomeUSR` e `$senha`. Não versione seus valores. A aplicação utiliza PHP com PDO/PostgreSQL,
-Fileinfo, GD e mbstring.
-
-As migrações de [artes](../database/migrations/001_artes.sql) e
-[cancelamentos](../database/migrations/002_cancelamentos.sql) exigem as tabelas base já existentes.
-O checkout atual ainda precisa de uma baseline de produção reproduzível.
-
-Os arquivos da suíte de testes, suas ferramentas e os resultados foram removidos a pedido.
-O relatório de auditoria foi mantido como registro histórico.
+Os testes antigos foram removidos a pedido. Seus resultados nos relatórios são históricos, não uma suíte disponível no checkout. A instalação a partir de banco vazio continua pendente de uma baseline completa. As imagens provisórias são descritas em [img/README.md](../img/README.md) e ainda não foram integradas às páginas.
