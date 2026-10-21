@@ -32,41 +32,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pagina de login</title>
+    <title>Cadastrar conta — ArtUP</title>
+    <link rel="stylesheet" href="<?= htmlspecialchars(url_app('css/estilo.css'), ENT_QUOTES, 'UTF-8') ?>">
 </head>
 
 <body>
     <?php include __DIR__ . '/../include/header.php'; ?>
-    <main>
-        <section>
-            <h1>Faça o cadastro para continuar</h1>
+    <main class="auth-wrapper">
+        <section class="auth-card">
+            <div class="auth-cabecalho">
+                <p class="sobretitulo">ArtUP Gráfica</p>
+                <h1>Crie sua conta</h1>
+                <p>Cadastre-se para calcular orçamentos, enviar artes e fazer pedidos.</p>
+            </div>
+
+            <?php if ($erroCadastro !== ''): ?>
+                <div class="alerta alerta-erro" role="alert">
+                    <?= htmlspecialchars($erroCadastro, ENT_QUOTES, 'UTF-8') ?>
+                </div>
+            <?php endif; ?>
+
             <form action="" method="post">
-                <div>
-                    <input type="text" name="nome" id="nome" placeholder="Digite o seu Nome" maxlength="255" required>
+                <div class="campo-grupo">
+                    <label for="nome">Nome completo</label>
+                    <input type="text" name="nome" id="nome" placeholder="Digite seu nome completo" maxlength="255" autocomplete="name" required>
                 </div>
-                <div>
-                    <input type="email" name="email" id="email" placeholder="Digite seu email" maxlength="255" required>
+                <div class="campo-grupo">
+                    <label for="email">E-mail</label>
+                    <input type="email" name="email" id="email" placeholder="seuemail@exemplo.com" maxlength="255" autocomplete="email" required>
                 </div>
-                <div>
-                    <input type="password" name="senha" id="senha" placeholder="Digite sua senha" autocomplete="new-password" aria-describedby="regra-senha" required>
-                    <p id="regra-senha">Use pelo menos uma letra e um número. Não há limite mínimo ou máximo de comprimento. Espaços e símbolos são permitidos.</p>
+                <div class="campo-grupo">
+                    <label for="senha">Senha</label>
+                    <input type="password" name="senha" id="senha" placeholder="Crie uma senha segura" autocomplete="new-password" aria-describedby="regra-senha" required>
+                    <p class="ajuda" id="regra-senha">Use pelo menos uma letra e um número. Espaços e símbolos são permitidos.</p>
                 </div>
-                <div>
-                    <input type="password" name="senha_confirmacao" id="senha_confirmacao" placeholder="Confirme sua senha" autocomplete="new-password" required>
+                <div class="campo-grupo">
+                    <label for="senha_confirmacao">Confirme sua senha</label>
+                    <input type="password" name="senha_confirmacao" id="senha_confirmacao" placeholder="Repita a senha digitada" autocomplete="new-password" required>
                 </div>
-                <br>
-                <div>
-                    <input type="submit" value="Cadastrar">
-                </div>
+                <button type="submit" class="botao" style="width: 100%; margin-top: 8px;">Cadastrar</button>
             </form>
-            <div>
-                <a href="login.php">Caso já tenha cadastro clique aqui</a>
+
+            <div class="auth-rodape">
+                Já possui uma conta? <a href="login.php">Faça login aqui</a>
             </div>
         </section>
-        <?php if ($erroCadastro !== ''): ?>
-            <p><?= htmlspecialchars($erroCadastro, ENT_QUOTES, 'UTF-8') ?></p>
-        <?php endif; ?>
     </main>
+    <?php include __DIR__ . '/../include/footer.php'; ?>
 </body>
 
 </html>
