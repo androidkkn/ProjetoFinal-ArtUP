@@ -15,4 +15,4 @@ O [README principal](../README.md) concentra requisitos, instalação, configura
 | [product-backlog.md](product-backlog.md) | Entregas, pendências, prioridades e critérios de aceitação. |
 | [manutencao.md](manutencao.md) | Simplificação conservadora, verificações e mudanças adiadas por risco funcional. |
 
-Os testes antigos foram removidos a pedido. Seus resultados nos relatórios são históricos, não uma suíte disponível no checkout. A instalação a partir de banco vazio continua pendente de uma baseline completa. As imagens provisórias são descritas em [img/README.md](../img/README.md) e ainda não foram integradas às páginas.
+Os testes antigos foram removidos a pedido. Seus resultados nos relatórios são históricos, não uma suíte disponível no checkout. A instalação a partir de banco vazio continua pendente de uma baseline completa. As imagens de catálogo e serviços descritas em [img/README.md](../img/README.md) e o design system unificado em `css/estilo.css` foram integrados aos templates da aplicação.

@@ -226,7 +226,7 @@ ProjetoFinal-ArtUP/
 
 As páginas combinam guarda de sessão, funções com PDO e renderização HTML/redirecionamento. A ordem exata varia: não reordene includes indiscriminadamente. `functions.php` reutiliza `$conexao` quando já é uma instância de PDO; `functions_core.php` pode ser incluído isoladamente em verificações sem banco.
 
-As imagens genéricas e o contexto `.superdesign/` presentes nesta árvore foram preparados em trabalho anterior, mas ainda não estão integrados aos templates. A página inicial/catálogo ainda têm referências ausentes e textos provisórios. Os prompts estão em [img/README.md](img/README.md).
+As imagens de produtos e o design system unificado em `css/estilo.css` estão integrados aos templates (`index.php`, catálogo, serviços, carrinho, pedidos e telas administrativas), estendendo o padrão visual e de acessibilidade do painel de estatísticas para toda a aplicação. Os prompts das imagens estão documentados em [img/README.md](img/README.md).
 
 ## Testes e validação
 
