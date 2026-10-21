@@ -202,7 +202,7 @@ ProjetoFinal-ArtUP/
 ├── app/                         Catálogo, carrinho, pedidos do cliente e download de arte
 │   └── servicos/                 Define categoria/título e carrega formulário compartilhado
 ├── admin/                       Gestão de pedidos/produtos e estatísticas
-│   └── estatisticas.css         Estilos exclusivos do painel atual
+│   └── estatisticas.css         Componentes do painel, complementando o CSS global
 ├── include/
 │   ├── functions.php            Fachada: funções e obtenção/reutilização de uma conexão PDO
 │   ├── functions_core.php       Validações, preços, carrinho, consultas e autenticação
@@ -212,7 +212,7 @@ ProjetoFinal-ArtUP/
 │   ├── form_produto.php         Fluxo HTTP e HTML dos quatro serviços
 │   ├── navegacao.php            URLs na raiz ou em subdiretórios
 │   ├── header.php / HeaderAdmin.php  Menus por perfil e navegação administrativa
-│   └── footer.php               Rodapé compartilhado ainda provisório
+│   └── footer.php               Rodapé compartilhado
 ├── database/
 │   ├── connect.php              Cria PDO e trata falha de conexão
 │   ├── credenciais.php          Configuração local, não versionada
@@ -227,6 +227,8 @@ ProjetoFinal-ArtUP/
 As páginas combinam guarda de sessão, funções com PDO e renderização HTML/redirecionamento. A ordem exata varia: não reordene includes indiscriminadamente. `functions.php` reutiliza `$conexao` quando já é uma instância de PDO; `functions_core.php` pode ser incluído isoladamente em verificações sem banco.
 
 As imagens de produtos e o design system unificado em `css/estilo.css` estão integrados aos templates (`index.php`, catálogo, serviços, carrinho, pedidos e telas administrativas), estendendo o padrão visual e de acessibilidade do painel de estatísticas para toda a aplicação. Os prompts das imagens estão documentados em [img/README.md](img/README.md).
+
+A revisão posterior com Superdesign corrigiu a carga do helper de navegação no cadastro, o campo de upload em telas pequenas e a consistência dos menus. O escopo, a prévia visual e as 52 verificações de página e 32 verificações de contratos/acessibilidade estão em [docs/revisao-visual.md](docs/revisao-visual.md).
 
 ## Testes e validação
 

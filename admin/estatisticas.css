@@ -1,31 +1,4 @@
-:root {
-    color-scheme: light;
-    --texto: #1d2535;
-    --secundario: #586477;
-    --fundo: #f4f5f9;
-    --borda: #dce1eb;
-    --marca: #a81759;
-    --marca-clara: #fff0f6;
-}
-
-* { box-sizing: border-box; }
-body.pagina-estatisticas { margin: 0; background: var(--fundo); color: var(--texto); font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
-a { color: var(--marca); text-underline-offset: 3px; }
-a:hover { text-decoration-thickness: 2px; }
-a:focus-visible, button:focus-visible, input:focus-visible, .tabela-responsiva:focus-visible { outline: 3px solid #177bba; outline-offset: 4px; }
-button, input { font: inherit; }
-.pular-conteudo { position: absolute; top: -100px; left: 16px; z-index: 2; padding: 12px; background: white; }
-.pular-conteudo:focus { top: 12px; }
-body > header { background: #171820; color: #fff; padding: 8px max(24px, calc((100% - 1180px) / 2)); display: grid; grid-template-columns: 180px 1fr; align-items: center; column-gap: 36px; }
-body > header img { width: 140px; height: 52px; object-fit: contain; display: block; }
-body > header nav { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; }
-body > header a { color: #f3f4fa; text-decoration: none; font-size: 14px; }
-body > header a:hover { color: #ff9bc5; }
-body > header form { margin: 0 0 0 auto; }
-body > header button { border: 1px solid #636475; border-radius: 7px; background: transparent; color: white; padding: 6px 15px; cursor: pointer; }
-body > header nav[aria-label="Administração"] { grid-column: 1 / -1; border-top: 1px solid #353642; gap: 0; }
-body > header nav[aria-label="Administração"] a { padding: 14px 20px; border-bottom: 3px solid transparent; }
-body > header a[aria-current="page"] { border-bottom-color: #ff6eab !important; color: #fff; }
+/* Componentes do painel; fundamentos, cabeçalho e rodapé vêm de css/estilo.css. */
 .estatisticas { width: min(1180px, calc(100% - 48px)); margin: 38px auto 48px; }
 .titulo-pagina { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 28px; }
 .sobretitulo { color: var(--marca); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 6px; }
@@ -87,21 +60,13 @@ tbody tr:last-child > * { border-bottom: 0; }
 .barra-mensal strong { min-width: 28px; font-weight: 600; }
 .estado-vazio { padding: 40px 24px; text-align: center; }
 .estado-vazio > p:last-child { color: var(--secundario); margin: 10px 0 0; }
-.rodape-estatisticas { width: min(1180px, calc(100% - 48px)); margin: 0 auto; padding: 0 0 24px; color: var(--secundario); font-size: 12px; }
 
 @media (max-width: 850px) {
-    body > header { grid-template-columns: 140px 1fr; padding: 8px 20px; gap: 12px; }
-    body > header img { width: 140px; height: 48px; object-fit: contain; }
-    body > header nav { gap: 8px 14px; }
-    body > header form { margin-left: 0; }
     .indicadores { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .grade-paineis { grid-template-columns: 1fr; gap: 0; }
 }
 
 @media (max-width: 540px) {
-    body > header { grid-template-columns: 1fr; }
-    body > header img { width: 120px; height: 44px; object-fit: contain; }
-    body > header nav[aria-label="Administração"] a { padding: 12px 14px; }
     .estatisticas { width: calc(100% - 32px); margin-top: 24px; }
     .titulo-pagina { align-items: start; flex-direction: column; gap: 16px; }
     .filtro-periodo { padding: 18px; gap: 14px; }
@@ -112,11 +77,10 @@ tbody tr:last-child > * { border-bottom: 0; }
     .indicador h3 { font-size: 12px; }
     .indicador .valor-monetario { font-size: 20px; }
     .painel { padding: 20px 16px; }
-    .rodape-estatisticas { width: calc(100% - 32px); }
 }
 
 @media print {
-    body > header, .pular-conteudo, .filtro-periodo, .titulo-pagina > a, .painel > a { display: none; }
+    .filtro-periodo, .titulo-pagina > a, .painel > a { display: none; }
     body.pagina-estatisticas { background: white; }
     .estatisticas { width: 100%; margin: 0; }
     .painel, .indicador { break-inside: avoid; box-shadow: none; }

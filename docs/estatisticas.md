@@ -74,7 +74,7 @@ no [product backlog](product-backlog.md), incluindo a revogação de papel em se
 - [include/estatisticas.php](../include/estatisticas.php): validação de datas e consulta agregada, com
   parâmetros preparados e verificação de sessão administrativa também na função de consulta.
 - [admin/estatisticas.php](../admin/estatisticas.php): controle de acesso, filtros, indicadores e renderização.
-- [admin/estatisticas.css](../admin/estatisticas.css): apresentação exclusiva do painel.
+- [admin/estatisticas.css](../admin/estatisticas.css): componentes específicos do painel; fundamentos, cabeçalho e rodapé usam [css/estilo.css](../css/estilo.css) e o template compartilhado.
 
 Uma única instrução SQL calcula resumo, status, categorias e meses no mesmo snapshot, sem executar
 consultas dentro dos loops de apresentação ou carregar os pedidos completos no PHP. Os valores monetários

@@ -115,89 +115,103 @@ $imagem_atual = $imagens_categoria[$id_categoria] ?? null;
 </head>
 <body>
     <?php include __DIR__ . '/header.php'; ?>
-    <main class="container">
+    <main id="conteudo" class="container" tabindex="-1">
         <div class="formulario-produto">
-            <?php if ($imagem_atual !== null): ?>
-                <img src="<?= htmlspecialchars(url_app('img/' . $imagem_atual), ENT_QUOTES, 'UTF-8') ?>" alt="<?= $escapar($titulo) ?>" class="imagem-categoria">
-            <?php endif; ?>
-            <h1><?= $escapar($titulo) ?></h1>
-            <?php if ($id_categoria === 2): ?>
-                <p>O valor base corresponde a uma folha A4. A3 custa o dobro, A5 custa a metade, e assim por diante.</p>
-            <?php else: ?>
-                <p>Informe as medidas em centímetros (cm). A área em m² é comprimento × largura ÷ 10.000. O preço por unidade é essa área multiplicada pelo preço por m²<?= $id_categoria === 3 ? '.' : ', mais o valor base do tipo ou acabamento.' ?></p>
-                <?php if ($id_categoria === 3): ?><p>O preço por m² é o mesmo para as três espessuras.</p><?php endif; ?>
-            <?php endif; ?>
-            <?php if ($erro): ?><p class="alerta alerta-erro" role="alert"><?= $escapar($erro) ?></p><?php endif; ?>
-            <?php if ($mensagem_arte): ?><p class="alerta alerta-sucesso" role="status"><?= $escapar($mensagem_arte) ?></p><?php endif; ?>
-            <form method="post" enctype="multipart/form-data">
-                <input type="hidden" name="unidade_medidas" value="<?= $escapar(UNIDADE_MEDIDAS) ?>">
-                <input type="hidden" name="csrf_token" value="<?= $escapar($_SESSION['csrf_produto']) ?>">
-                <input type="hidden" name="arte_referencia" value="<?= $escapar($arte['id'] ?? '') ?>">
+            <aside class="produto-apresentacao" aria-labelledby="titulo-produto">
+                <a class="retorno-catalogo" href="<?= $escapar(url_app('app/catalogo.php')) ?>">← Voltar ao catálogo</a>
+                <p class="sobretitulo">Configure seu produto</p>
+                <h1 id="titulo-produto"><?= $escapar($titulo) ?></h1>
                 <?php if ($id_categoria === 2): ?>
-                    <div class="campo-grupo">
-                        <label for="tamanho">Tamanho do papel</label>
-                        <select name="tamanho" id="tamanho">
-                            <?php foreach (range(1, 8) as $numero): ?>
-                                <option value="A<?= $numero ?>" <?= $dados['tamanho'] === 'A' . $numero ? 'selected' : '' ?>>A<?= $numero ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
+                    <p>O valor base corresponde a uma folha A4. A3 custa o dobro, A5 custa a metade, e assim por diante.</p>
                 <?php else: ?>
-                    <div class="campo-grupo">
-                        <label for="compr">Comprimento (<?= $escapar(UNIDADE_MEDIDAS) ?>)</label>
-                        <input type="number" name="compr" id="compr" min="0" step="any" value="<?= $escapar($dados['compr']) ?>" required>
-                    </div>
-                    <div class="campo-grupo">
-                        <label for="larg">Largura (<?= $escapar(UNIDADE_MEDIDAS) ?>)</label>
-                        <input type="number" name="larg" id="larg" min="0" step="any" value="<?= $escapar($dados['larg']) ?>" required>
-                    </div>
+                    <p>Informe as medidas em centímetros (cm). A área em m² é comprimento × largura ÷ 10.000. O preço por unidade é essa área multiplicada pelo preço por m²<?= $id_categoria === 3 ? '.' : ', mais o valor base do tipo ou acabamento.' ?></p>
+                    <?php if ($id_categoria === 3): ?><p>O preço por m² é o mesmo para as três espessuras.</p><?php endif; ?>
                 <?php endif; ?>
-                <?php if ($id_categoria === 3): ?>
-                    <div class="campo-grupo">
-                        <label for="grossura">Espessura</label>
-                        <select name="grossura" id="grossura">
-                            <?php foreach ([1, 2, 3] as $espessura): ?>
-                                <option value="<?= $espessura ?>" <?= $dados['grossura'] === (string) $espessura ? 'selected' : '' ?>><?= $espessura ?> mm</option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                <?php else: ?>
-                    <div class="campo-grupo">
-                        <label for="tipo"><?= $id_categoria === 2 ? 'Tipo de papel / preço de uma folha A4' : 'Tipo / acabamento / valor base' ?></label>
-                        <select name="tipo" id="tipo" required>
-                            <?php foreach ($tipos as $tipo): ?>
-                                <option value="<?= $escapar($tipo['id']) ?>" <?= $dados['tipo'] === (string) $tipo['id'] ? 'selected' : '' ?>><?= $escapar($tipo['nome']) ?> — <?= $escapar(formatar_preco($tipo['valor_base'])) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
+                <?php if ($imagem_atual !== null): ?>
+                    <figure class="produto-ilustracao">
+                        <img src="<?= $escapar(url_app('img/' . $imagem_atual)) ?>" alt="Exemplo ilustrativo de <?= $escapar($titulo) ?>" class="imagem-categoria" width="1536" height="1024">
+                        <figcaption>Imagem ilustrativa. Personalize o produto com sua arte.</figcaption>
+                    </figure>
                 <?php endif; ?>
-                <div class="campo-grupo">
-                    <label for="quantidade">Quantidade</label>
-                    <input type="number" name="quantidade" id="quantidade" min="1" max="2147483647" step="1" value="<?= $escapar($dados['quantidade']) ?>" required>
-                </div>
-                <div class="campo-grupo">
-                    <label for="arte">Arte (opcional)</label>
-                    <input type="hidden" name="MAX_FILE_SIZE" value="<?= limite_arte_bytes() ?>">
-                    <input type="file" name="arte" id="arte" accept=".png,.jpg,.jpeg,.webp,.pdf,image/png,image/jpeg,image/webp,application/pdf" aria-describedby="ajuda-arte">
-                    <p class="ajuda" id="ajuda-arte">Envie PNG, JPG, WEBP ou PDF de até <?= $escapar(limite_arte_formatado()) ?>. Imagens podem ter até 40 megapixels. Para resoluções maiores, envie PDF.</p>
-                </div>
-                <?php if ($arte !== null): ?>
-                    <p class="alerta alerta-info" role="status">Arte recebida: <strong><?= $escapar($arte['nome_original']) ?></strong>. Ela será anexada ao produto. Selecione outro arquivo para substituí-la.</p>
-                    <button type="submit" name="acao" value="remover_arte" formnovalidate class="botao botao-secundario">Remover arte</button>
-                <?php endif; ?>
-                <div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 12px;">
-                    <button type="submit" name="acao" value="calcular" class="botao botao-secundario">Calcular prévia</button>
+            </aside>
+
+            <div class="produto-formulario">
+                <?php if ($erro): ?><p class="alerta alerta-erro" role="alert"><?= $escapar($erro) ?></p><?php endif; ?>
+                <?php if ($mensagem_arte): ?><p class="alerta alerta-sucesso" role="status"><?= $escapar($mensagem_arte) ?></p><?php endif; ?>
+                <form method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="unidade_medidas" value="<?= $escapar(UNIDADE_MEDIDAS) ?>">
+                    <input type="hidden" name="csrf_token" value="<?= $escapar($_SESSION['csrf_produto']) ?>">
+                    <input type="hidden" name="arte_referencia" value="<?= $escapar($arte['id'] ?? '') ?>">
+                    <fieldset class="produto-etapa">
+                        <legend>1. Medidas e acabamento</legend>
+                        <div class="grade-campos">
+                            <?php if ($id_categoria === 2): ?>
+                                <div class="campo-grupo campo-inteiro">
+                                    <label for="tamanho">Tamanho do papel</label>
+                                    <select name="tamanho" id="tamanho">
+                                        <?php foreach (range(1, 8) as $numero): ?>
+                                            <option value="A<?= $numero ?>" <?= $dados['tamanho'] === 'A' . $numero ? 'selected' : '' ?>>A<?= $numero ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            <?php else: ?>
+                                <div class="campo-grupo">
+                                    <label for="compr">Comprimento (<?= $escapar(UNIDADE_MEDIDAS) ?>)</label>
+                                    <input type="number" name="compr" id="compr" min="0" step="any" value="<?= $escapar($dados['compr']) ?>" required>
+                                </div>
+                                <div class="campo-grupo">
+                                    <label for="larg">Largura (<?= $escapar(UNIDADE_MEDIDAS) ?>)</label>
+                                    <input type="number" name="larg" id="larg" min="0" step="any" value="<?= $escapar($dados['larg']) ?>" required>
+                                </div>
+                            <?php endif; ?>
+                            <?php if ($id_categoria === 3): ?>
+                                <div class="campo-grupo campo-inteiro">
+                                    <label for="grossura">Espessura</label>
+                                    <select name="grossura" id="grossura">
+                                        <?php foreach ([1, 2, 3] as $espessura): ?>
+                                            <option value="<?= $espessura ?>" <?= $dados['grossura'] === (string) $espessura ? 'selected' : '' ?>><?= $espessura ?> mm</option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            <?php else: ?>
+                                <div class="campo-grupo campo-inteiro">
+                                    <label for="tipo"><?= $id_categoria === 2 ? 'Tipo de papel / preço de uma folha A4' : 'Tipo / acabamento / valor base' ?></label>
+                                    <select name="tipo" id="tipo" required>
+                                        <?php foreach ($tipos as $tipo): ?>
+                                            <option value="<?= $escapar($tipo['id']) ?>" <?= $dados['tipo'] === (string) $tipo['id'] ? 'selected' : '' ?>><?= $escapar($tipo['nome']) ?> — <?= $escapar(formatar_preco($tipo['valor_base'])) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            <?php endif; ?>
+                            <div class="campo-grupo campo-inteiro">
+                                <label for="quantidade">Quantidade</label>
+                                <input type="number" name="quantidade" id="quantidade" min="1" max="2147483647" step="1" value="<?= $escapar($dados['quantidade']) ?>" required>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset class="produto-etapa">
+                        <legend>2. Sua arte <span class="texto-secundario">(opcional)</span></legend>
+                        <div class="campo-grupo">
+                            <label for="arte">Arquivo da arte</label>
+                            <input type="hidden" name="MAX_FILE_SIZE" value="<?= limite_arte_bytes() ?>">
+                            <input type="file" name="arte" id="arte" accept=".png,.jpg,.jpeg,.webp,.pdf,image/png,image/jpeg,image/webp,application/pdf" aria-describedby="ajuda-arte">
+                            <p class="ajuda" id="ajuda-arte">Envie PNG, JPG, WEBP ou PDF de até <?= $escapar(limite_arte_formatado()) ?>. Imagens podem ter até 40 megapixels. Para resoluções maiores, envie PDF.</p>
+                        </div>
+                        <?php if ($arte !== null): ?>
+                            <p class="alerta alerta-info" role="status">Arte recebida: <strong><?= $escapar($arte['nome_original']) ?></strong>. Ela será anexada ao produto. Selecione outro arquivo para substituí-la.</p>
+                            <button type="submit" name="acao" value="remover_arte" class="botao botao-secundario botao-sm" formnovalidate>Remover arte</button>
+                        <?php endif; ?>
+                    </fieldset>
+                    <button type="submit" name="acao" value="calcular" class="botao botao-secundario botao-largo">Calcular prévia</button>
                     <?php if ($previa !== null): ?>
-                        <button type="submit" name="acao" value="adicionar" class="botao">Adicionar ao carrinho</button>
+                        <section class="previa-preco" aria-label="Prévia do preço" aria-live="polite">
+                            <p>Preço unitário: <strong><?= $escapar(formatar_preco($previa['preco_unitario'])) ?></strong></p>
+                            <p><?= $escapar($dados['quantidade']) ?> unidade(s) — Total do produto: <strong><?= $escapar(formatar_preco($previa['valor_total'])) ?></strong></p>
+                        </section>
+                        <button type="submit" name="acao" value="adicionar" class="botao botao-largo">Adicionar ao carrinho</button>
                     <?php endif; ?>
-                </div>
-                <?php if ($previa !== null): ?>
-                    <div class="previa-preco">
-                        <p>Preço unitário: <strong><?= $escapar(formatar_preco($previa['preco_unitario'])) ?></strong></p>
-                        <p><?= $escapar($dados['quantidade']) ?> unidade(s) — Total do produto: <strong><?= $escapar(formatar_preco($previa['valor_total'])) ?></strong></p>
-                    </div>
-                <?php endif; ?>
-            </form>
+                </form>
+            </div>
         </div>
     </main>
     <?php include __DIR__ . '/footer.php'; ?>

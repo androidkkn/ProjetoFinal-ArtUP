@@ -58,7 +58,7 @@ $status_classe = [
 <body>
     <?php include __DIR__ . '/../include/header.php' ?>
 
-    <main class="container secao-pagina">
+    <main id="conteudo" class="container secao-pagina" tabindex="-1">
         <div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 20px;">
             <div>
                 <p class="sobretitulo">Área do Cliente</p>
@@ -123,7 +123,7 @@ $status_classe = [
                                 <td><?= $escapar($pedido['data_formatada']) ?></td>
                                 <td>
                                     <?php
-                                    $classe = $status_classe[$pedido['status']] ?? 'status-pendente';
+                                    $classe = $status_classe[$pedido['status']] ?? 'status-desconhecido';
                                     $rotulo = STATUS_PEDIDOS[$pedido['status']] ?? $pedido['status'];
                                     ?>
                                     <span class="badge <?= $classe ?>"><?= $escapar($rotulo) ?></span>
@@ -131,7 +131,7 @@ $status_classe = [
                                 <td>
                                     <strong><?= $escapar($pedido['categoria']) ?></strong>
                                     <?php if ($pedido['tipo'] !== null): ?>
-                                        <br><small style="color: var(--secundario);"><?= $escapar($pedido['tipo']) ?></small>
+                                        <br><small class="texto-secundario"><?= $escapar($pedido['tipo']) ?></small>
                                     <?php endif; ?>
                                 </td>
                                 <td class="numerico"><?= $escapar($pedido['quantidade']) ?></td>
@@ -150,14 +150,14 @@ $status_classe = [
                                             <?= $escapar($pedido['arte_nome']) ?>
                                         </a>
                                     <?php else: ?>
-                                        <span style="color: var(--secundario);">Sem arte</span>
+                                        <span class="texto-secundario">Sem arte</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
                                     <?php if ($pedido['cancelamento_status'] !== null): ?>
                                         <div class="box-cancelamento">
                                             <strong>Status:</strong> <?= $escapar(STATUS_CANCELAMENTO[$pedido['cancelamento_status']]) ?><br>
-                                            <small style="color: var(--secundario);"><?= $escapar($pedido['cancelamento_data']) ?></small>
+                                            <small class="texto-secundario"><?= $escapar($pedido['cancelamento_data']) ?></small>
                                             <?php if ($pedido['cancelamento_motivo'] !== ''): ?>
                                                 <p style="margin-top: 4px; font-style: italic;">"<?= $escapar($pedido['cancelamento_motivo']) ?>"</p>
                                             <?php endif; ?>
@@ -176,9 +176,9 @@ $status_classe = [
                                             </div>
                                         </form>
                                     <?php elseif ($pedido['cancelamento_status'] === 'pendente'): ?>
-                                        <small style="color: var(--secundario);">Aguardando análise da gráfica.</small>
+                                        <small class="texto-secundario">Aguardando análise da gráfica.</small>
                                     <?php elseif ($pedido['cancelamento_status'] === null): ?>
-                                        <small style="color: var(--secundario);">Não cancelável</small>
+                                        <small class="texto-secundario">Não cancelável</small>
                                     <?php endif; ?>
                                 </td>
                             </tr>

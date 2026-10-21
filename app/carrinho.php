@@ -45,7 +45,7 @@ $escapar = static fn($valor) => htmlspecialchars((string) $valor, ENT_QUOTES | E
 <body>
     <?php include __DIR__ . '/../include/header.php' ?>
 
-    <main class="container secao-pagina">
+    <main id="conteudo" class="container secao-pagina" tabindex="-1">
         <div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 20px;">
             <div>
                 <p class="sobretitulo">Revisão de orçamento</p>
@@ -110,7 +110,7 @@ $escapar = static fn($valor) => htmlspecialchars((string) $valor, ENT_QUOTES | E
                                             <?= $escapar($produto['arte_nome']) ?>
                                         </a>
                                     <?php else: ?>
-                                        <span style="color: var(--secundario);">Sem arte</span>
+                                        <span class="texto-secundario">Sem arte</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>

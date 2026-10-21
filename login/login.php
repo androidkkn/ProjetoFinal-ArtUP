@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <?php include __DIR__ . '/../include/header.php'; ?>
-    <main class="auth-wrapper">
+    <main id="conteudo" class="auth-wrapper" tabindex="-1">
         <section class="auth-card">
             <div class="auth-cabecalho">
                 <p class="sobretitulo">ArtUP Gráfica</p>
@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label for="senha">Senha</label>
                     <input type="password" name="senha" id="senha" placeholder="Digite sua senha" autocomplete="current-password" required>
                 </div>
-                <button type="submit" class="botao" style="width: 100%; margin-top: 8px;">Entrar</button>
+                <button type="submit" class="botao auth-enviar">Entrar</button>
             </form>
 
             <div class="auth-rodape">

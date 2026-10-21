@@ -60,7 +60,7 @@ $pedidos = listar_pedidos_admin($conexao, $pesquisa);
 </head>
 <body>
     <?php include __DIR__ . '/../include/header.php'; ?>
-    <main class="container secao-pagina">
+    <main id="conteudo" class="container secao-pagina" tabindex="-1">
         <div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 20px;">
             <div>
                 <p class="sobretitulo">ArtUP / Painel Administrativo</p>
@@ -128,7 +128,7 @@ $pedidos = listar_pedidos_admin($conexao, $pesquisa);
                                 <td>
                                     <strong><?= $escapar($pedido['categoria']) ?></strong>
                                     <?php if ($pedido['tipo'] !== null): ?>
-                                        <br><small style="color: var(--secundario);"><?= $escapar($pedido['tipo']) ?></small>
+                                        <br><small class="texto-secundario"><?= $escapar($pedido['tipo']) ?></small>
                                     <?php endif; ?>
                                 </td>
                                 <td class="numerico"><?= $escapar($pedido['quantidade']) ?></td>
@@ -147,7 +147,7 @@ $pedidos = listar_pedidos_admin($conexao, $pesquisa);
                                             <?= $escapar($pedido['arte_nome']) ?>
                                         </a>
                                     <?php else: ?>
-                                        <span style="color: var(--secundario);">Sem arte</span>
+                                        <span class="texto-secundario">Sem arte</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -170,7 +170,7 @@ $pedidos = listar_pedidos_admin($conexao, $pesquisa);
                                     <?php if ($pedido['cancelamento_status'] !== null): ?>
                                         <div class="box-cancelamento">
                                             <strong><?= $escapar(STATUS_CANCELAMENTO[$pedido['cancelamento_status']]) ?></strong><br>
-                                            <small style="color: var(--secundario);"><?= $escapar($pedido['cancelamento_data']) ?></small>
+                                            <small class="texto-secundario"><?= $escapar($pedido['cancelamento_data']) ?></small>
                                             <?php if ($pedido['cancelamento_motivo'] !== ''): ?>
                                                 <p style="margin: 4px 0 0; font-style: italic;">"<?= $escapar($pedido['cancelamento_motivo']) ?>"</p>
                                             <?php endif; ?>
@@ -184,7 +184,7 @@ $pedidos = listar_pedidos_admin($conexao, $pesquisa);
                                             </form>
                                         <?php endif; ?>
                                     <?php else: ?>
-                                        <span style="color: var(--secundario);">Nenhuma</span>
+                                        <span class="texto-secundario">Nenhuma</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>

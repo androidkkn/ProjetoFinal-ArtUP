@@ -33,12 +33,12 @@ $maior_mes = $dados !== false ? max(1, ...array_column($dados['por_mes'], 'pedid
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>Estatísticas de pedidos | ArtUP</title>
+    <link rel="stylesheet" href="<?= $escapar(url_app('css/estilo.css')) ?>">
     <link rel="stylesheet" href="<?= $escapar(url_app('admin/estatisticas.css')) ?>">
 </head>
 <body class="pagina-estatisticas">
-    <a class="pular-conteudo" href="#conteudo">Ir para as estatísticas</a>
     <?php include __DIR__ . '/../include/header.php'; ?>
-    <main id="conteudo" class="estatisticas">
+    <main id="conteudo" class="estatisticas" tabindex="-1">
         <div class="titulo-pagina">
             <div>
                 <p class="sobretitulo">ArtUP / Administração</p>
@@ -145,7 +145,7 @@ $maior_mes = $dados !== false ? max(1, ...array_column($dados['por_mes'], 'pedid
 
                 <section class="painel" aria-labelledby="titulo-meses">
                     <div class="titulo-painel"><h2 id="titulo-meses">Evolução mensal</h2><span class="etiqueta">Data de criação do pedido</span></div>
-                    <div class="tabela-responsiva" tabindex="0" role="region" aria-label="Evolução mensal dos pedidos">
+                    <div class="tabela-responsiva tabela-estatisticas" tabindex="0" role="region" aria-label="Evolução mensal dos pedidos">
                         <table>
                             <caption>Pedidos criados no período selecionado, agrupados por mês</caption>
                             <thead><tr><th scope="col">Mês</th><th scope="col">Pedidos</th><th scope="col">Cancelados</th><th scope="col">Valor não cancelado</th></tr></thead>
@@ -166,7 +166,7 @@ $maior_mes = $dados !== false ? max(1, ...array_column($dados['por_mes'], 'pedid
 
                 <section class="painel" aria-labelledby="titulo-categorias">
                     <div class="titulo-painel"><h2 id="titulo-categorias">Pedidos por categoria</h2><span class="etiqueta">Por valor não cancelado</span></div>
-                    <div class="tabela-responsiva" tabindex="0" role="region" aria-label="Pedidos por categoria de produto">
+                    <div class="tabela-responsiva tabela-estatisticas" tabindex="0" role="region" aria-label="Pedidos por categoria de produto">
                         <table>
                             <caption>Movimento das categorias no período</caption>
                             <thead><tr><th scope="col">Categoria</th><th scope="col">Pedidos</th><th scope="col">Unidades não canceladas</th><th scope="col">Valor não cancelado</th></tr></thead>
@@ -182,6 +182,6 @@ $maior_mes = $dados !== false ? max(1, ...array_column($dados['por_mes'], 'pedid
             <p class="nota-valores">Cada pedido corresponde a um item confirmado. O filtro usa a data de criação; status e solicitações mostram a situação atual. Pedidos excluídos deixam de compor o painel.</p>
         <?php endif; ?>
     </main>
-    <footer class="rodape-estatisticas"><p>ArtUP · Administração de pedidos</p></footer>
+    <?php include __DIR__ . '/../include/footer.php'; ?>
 </body>
 </html>

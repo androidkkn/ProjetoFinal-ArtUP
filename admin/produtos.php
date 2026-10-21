@@ -58,7 +58,7 @@ $produtos = listar_produtos_admin($conexao);
 </head>
 <body>
     <?php include __DIR__ . '/../include/header.php' ?>
-    <main class="container secao-pagina">
+    <main id="conteudo" class="container secao-pagina" tabindex="-1">
         <div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 20px;">
             <div>
                 <p class="sobretitulo">ArtUP / Painel Administrativo</p>
@@ -89,7 +89,7 @@ $produtos = listar_produtos_admin($conexao);
                 <h2>Tipos de produto e valores base</h2>
                 <p>O valor base é somado ao cálculo de área (adesivos e banners) ou define o preço de uma folha A4 (papelaria).</p>
                 <?php if (!$produtos['tipos']): ?>
-                    <p style="color: var(--secundario);">Nenhum tipo de produto cadastrado.</p>
+                    <p class="texto-secundario">Nenhum tipo de produto cadastrado.</p>
                 <?php else: ?>
                     <div class="grade-cards-admin">
                         <?php foreach ($produtos['tipos'] as $tipo): ?>
@@ -119,7 +119,7 @@ $produtos = listar_produtos_admin($conexao);
                 <h2>Categorias e preço por m²</h2>
                 <p>Deixe o preço por m² em branco quando a categoria não utilizar área. A papelaria calcula os formatos A1–A8 a partir do valor base da folha A4.</p>
                 <?php if (!$produtos['categorias']): ?>
-                    <p style="color: var(--secundario);">Nenhuma categoria cadastrada.</p>
+                    <p class="texto-secundario">Nenhuma categoria cadastrada.</p>
                 <?php else: ?>
                     <div class="grade-cards-admin">
                         <?php foreach ($produtos['categorias'] as $categoria): ?>
@@ -149,7 +149,7 @@ $produtos = listar_produtos_admin($conexao);
                 <h2>Itens dos pedidos</h2>
                 <p>Informe dimensões em centímetros (cm). Ao salvar um item, o preço do pedido é recalculado automaticamente com as tarifas vigentes.</p>
                 <?php if (!$produtos['itens']): ?>
-                    <p style="color: var(--secundario);">Nenhum item de pedido encontrado.</p>
+                    <p class="texto-secundario">Nenhum item de pedido encontrado.</p>
                 <?php else: ?>
                     <div class="grade-cards-admin">
                         <?php foreach ($produtos['itens'] as $item): ?>
