@@ -38,34 +38,51 @@ $escapar = static fn($valor) => htmlspecialchars((string) $valor, ENT_QUOTES | E
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrinho</title>
+    <title>Meu Carrinho — ArtUP</title>
+    <link rel="stylesheet" href="<?= htmlspecialchars(url_app('css/estilo.css'), ENT_QUOTES, 'UTF-8') ?>">
 </head>
 
 <body>
     <?php include __DIR__ . '/../include/header.php' ?>
-    <main>
-        <section>
-            <h1>Meu carrinho</h1>
-            <p>Itens em verificação. Confira os produtos antes de confirmar; você pode excluí-los enquanto estiverem no carrinho.</p>
-            <a href="meus_pedidos.php">Acompanhar meus pedidos</a>
-            <?php if ($mensagem): ?><p role="status"><?= $escapar($mensagem) ?></p><?php endif; ?>
-            <?php if ($erro): ?><p role="alert"><?= $escapar($erro) ?></p><?php endif; ?>
-            <?php if ($produtos === false): ?>
-                <p role="alert">Não foi possível carregar o carrinho. Tente novamente.</p>
-            <?php elseif (!$produtos): ?>
-                <p>Seu carrinho está vazio.</p>
-                <a href="catalogo.php">Ver produtos</a>
-            <?php else: ?>
+
+    <main class="container secao-pagina">
+        <div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 20px;">
+            <div>
+                <p class="sobretitulo">Revisão de orçamento</p>
+                <h1>Meu carrinho</h1>
+                <p class="subtitulo">Confira os produtos antes de confirmar. Cada item gerará um pedido individual.</p>
+            </div>
+            <a href="meus_pedidos.php" class="botao botao-secundario botao-sm">Acompanhar meus pedidos &rarr;</a>
+        </div>
+
+        <?php if ($mensagem): ?>
+            <div class="alerta alerta-sucesso" role="status"><?= $escapar($mensagem) ?></div>
+        <?php endif; ?>
+
+        <?php if ($erro): ?>
+            <div class="alerta alerta-erro" role="alert"><?= $escapar($erro) ?></div>
+        <?php endif; ?>
+
+        <?php if ($produtos === false): ?>
+            <div class="alerta alerta-erro" role="alert">Não foi possível carregar o carrinho. Tente novamente.</div>
+        <?php elseif (!$produtos): ?>
+            <div class="estado-vazio">
+                <p>Seu carrinho está vazio</p>
+                <p>Escolha um dos nossos serviços gráficos para configurar seu produto e solicitar um orçamento.</p>
+                <a href="catalogo.php" class="botao">Ver catálogo de serviços</a>
+            </div>
+        <?php else: ?>
+            <div class="tabela-responsiva" tabindex="0" role="region" aria-label="Produtos em verificação no carrinho">
                 <table>
-                    <caption>Produtos em verificação</caption>
+                    <caption>Produtos no carrinho aguardando confirmação</caption>
                     <thead>
                         <tr>
                             <th scope="col">Produto</th>
                             <th scope="col">Tipo / acabamento</th>
-                            <th scope="col">Quantidade</th>
-                            <th scope="col">Preço unitário</th>
-                            <th scope="col">Total do produto</th>
-                            <th scope="col">Comprimento × largura (<?= $escapar(UNIDADE_MEDIDAS) ?>)</th>
+                            <th scope="col" class="numerico">Qtd</th>
+                            <th scope="col" class="numerico">Preço unitário</th>
+                            <th scope="col" class="numerico">Total</th>
+                            <th scope="col">Dimensões (<?= $escapar(UNIDADE_MEDIDAS) ?>)</th>
                             <th scope="col">Tamanho</th>
                             <th scope="col">Espessura</th>
                             <th scope="col">Arte</th>
@@ -75,49 +92,72 @@ $escapar = static fn($valor) => htmlspecialchars((string) $valor, ENT_QUOTES | E
                     <tbody>
                         <?php foreach ($produtos as $produto): ?>
                             <tr>
-                                <td><?= $escapar($produto['categoria']) ?></td>
+                                <td><strong><?= $escapar($produto['categoria']) ?></strong></td>
                                 <td><?= $escapar($produto['tipo'] ?? '—') ?></td>
-                                <td><?= $escapar($produto['quantidade']) ?></td>
-                                <td><?= $escapar(formatar_preco($produto['preco_unitario'])) ?></td>
-                                <td><?= $escapar(formatar_preco($produto['valor_total'])) ?></td>
-                                <td><?php if ($produto['comprimento'] !== null && $produto['largura'] !== null): ?>
-                                    <?= $escapar($produto['comprimento']) ?> × <?= $escapar($produto['largura']) ?>
-                                <?php else: ?>—<?php endif; ?></td>
+                                <td class="numerico"><?= $escapar($produto['quantidade']) ?></td>
+                                <td class="numerico"><?= $escapar(formatar_preco($produto['preco_unitario'])) ?></td>
+                                <td class="numerico"><strong><?= $escapar(formatar_preco($produto['valor_total'])) ?></strong></td>
+                                <td>
+                                    <?php if ($produto['comprimento'] !== null && $produto['largura'] !== null): ?>
+                                        <?= $escapar($produto['comprimento']) ?> × <?= $escapar($produto['largura']) ?> cm
+                                    <?php else: ?>—<?php endif; ?>
+                                </td>
                                 <td><?= $escapar($produto['tamanho'] ?? '—') ?></td>
                                 <td><?= $produto['grossura'] !== null ? $escapar($produto['grossura']) . ' mm' : '—' ?></td>
-                                <td><?php if ($produto['arte_nome'] !== null): ?>
-                                    <a href="arte.php?produto=<?= $escapar($produto['id_produto']) ?>">Baixar <?= $escapar($produto['arte_nome']) ?></a>
-                                <?php else: ?>Sem arte<?php endif; ?></td>
                                 <td>
-                                    <form action="carrinho.php" method="post">
+                                    <?php if ($produto['arte_nome'] !== null): ?>
+                                        <a href="arte.php?produto=<?= $escapar($produto['id_produto']) ?>" title="Baixar arte">
+                                            <?= $escapar($produto['arte_nome']) ?>
+                                        </a>
+                                    <?php else: ?>
+                                        <span style="color: var(--secundario);">Sem arte</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <form action="carrinho.php" method="post" style="margin: 0;">
                                         <input type="hidden" name="acao" value="excluir">
                                         <input type="hidden" name="id_carrinho" value="<?= $escapar($produto['id_carrinho']) ?>">
                                         <input type="hidden" name="csrf_token" value="<?= $escapar($_SESSION['csrf_carrinho']) ?>">
-                                        <button type="submit" aria-label="Excluir <?= $escapar($produto['categoria']) ?> do carrinho">Excluir produto</button>
+                                        <button type="submit" class="botao botao-perigo botao-sm" aria-label="Excluir <?= $escapar($produto['categoria']) ?> do carrinho">Excluir</button>
                                     </form>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
-                <p><strong>Total do carrinho: <?= $escapar(formatar_preco($produtos[0]['total_carrinho'])) ?></strong></p>
-                <?php if ($produtos[0]['total_carrinho'] === null): ?>
-                    <p>Há itens antigos sem preço. Calcule os valores antes de confirmar os pedidos.</p>
-                    <form action="carrinho.php" method="post">
-                        <input type="hidden" name="acao" value="calcular">
-                        <input type="hidden" name="csrf_token" value="<?= $escapar($_SESSION['csrf_carrinho']) ?>">
-                        <button type="submit">Calcular preços dos itens antigos</button>
-                    </form>
-                <?php else: ?>
-                <form action="carrinho.php" method="post">
-                    <input type="hidden" name="acao" value="confirmar">
-                    <input type="hidden" name="csrf_token" value="<?= $escapar($_SESSION['csrf_carrinho']) ?>">
-                    <button type="submit">Confirmar pedidos</button>
-                </form>
-                <?php endif; ?>
-            <?php endif; ?>
-        </section>
+            </div>
+
+            <div class="resumo-carrinho">
+                <div>
+                    <p class="total-destaque">
+                        Total do carrinho: <span><?= $escapar(formatar_preco($produtos[0]['total_carrinho'])) ?></span>
+                    </p>
+                    <p style="margin: 4px 0 0; color: var(--secundario); font-size: 13px;">Preços fixados e calculados com base nas tarifas cadastradas.</p>
+                </div>
+
+                <div>
+                    <?php if ($produtos[0]['total_carrinho'] === null): ?>
+                        <div class="alerta alerta-aviso" style="margin-bottom: 12px;">
+                            Há itens antigos sem preço. Calcule os valores antes de confirmar os pedidos.
+                        </div>
+                        <form action="carrinho.php" method="post">
+                            <input type="hidden" name="acao" value="calcular">
+                            <input type="hidden" name="csrf_token" value="<?= $escapar($_SESSION['csrf_carrinho']) ?>">
+                            <button type="submit" class="botao botao-secundario">Calcular preços dos itens</button>
+                        </form>
+                    <?php else: ?>
+                        <form action="carrinho.php" method="post" style="margin: 0;">
+                            <input type="hidden" name="acao" value="confirmar">
+                            <input type="hidden" name="csrf_token" value="<?= $escapar($_SESSION['csrf_carrinho']) ?>">
+                            <button type="submit" class="botao" style="font-size: 15px; padding: 12px 28px;">Confirmar pedidos &rarr;</button>
+                        </form>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php endif; ?>
     </main>
+
     <?php include __DIR__ . '/../include/footer.php' ?>
 </body>
+
 </html>
