@@ -5,9 +5,9 @@ Registro histórico: a suíte automatizada, suas ferramentas, configurações, c
 removidos posteriormente a pedido. Os resultados abaixo documentam as execuções anteriores à remoção.
 Atualização posterior: a página de estatísticas foi implementada, resolvendo essa parte de B04.
 Imagens/textos restantes e os demais achados continuam no [product backlog](product-backlog.md).
-O funcionamento e os limites do painel estão em [estatisticas.md](estatisticas.md).
+O funcionamento e os limites do painel estão em [estatísticas](funcionalidades.md#estatisticas).
 Este relatório registra o estado auditado antes da mudança posterior da interface para centímetros,
-descrita em [precos.md](precos.md). Os números de linha referem-se àquele estado e podem se deslocar
+descrita em [preços](funcionalidades.md#precos). Os números de linha referem-se àquele estado e podem se deslocar
 com alterações posteriores. As funções anteriormente
 concentradas em `include/functions.php` estão em `include/functions_core.php`; a fachada anterior continua válida.
 
@@ -237,7 +237,7 @@ Validar a CSP contra recursos reais antes de impor; não adicionar `unsafe-inlin
 ### S09 — Alta, condicional à implantação — Raiz do repositório publicável
 
 **Local:** [database/connect.php:2](../database/connect.php#L2),
-[docs/parametros_principais.pgsql:1](parametros_principais.pgsql#L1), estrutura sem `public/` e sem configuração
+[parâmetros SQL](banco-de-dados.md#parametros-iniciais), estrutura sem `public/` e sem configuração
 versionada de bloqueio de diretórios internos. O servidor PHP local iniciado na raiz entrega `/.git/HEAD`
 com HTTP 200 (sonda inofensiva, sem buscar segredos). Isso não comprova exposição na hospedagem atual.
 PHP corretamente configurado executa `credenciais.php`; sua localização por si só não prova download do fonte.
@@ -482,7 +482,7 @@ Referências: [PSR-7](https://www.php-fig.org/psr/psr-7/), [PSR-15](https://www.
 
 **Local:** [database/migrations/001_artes.sql:5](../database/migrations/001_artes.sql#L5),
 [database/migrations/002_cancelamentos.sql:5](../database/migrations/002_cancelamentos.sql#L5),
-[docs/parametros_principais.pgsql:1](parametros_principais.pgsql#L1).
+[parâmetros SQL](banco-de-dados.md#parametros-iniciais).
 As duas migrações exigem tabelas base existentes; o SQL em docs contém consultas/seeds, não a criação de
 todas as relações. Os arquivos antigos de schema aparecem removidos na árvore de trabalho, alteração
 anterior a esta auditoria que foi preservada. Um banco vazio não pode receber somente essas duas migrações.

@@ -1,14 +1,26 @@
-# Imagens provisórias
+# Imagens do ArtUP
 
-Geradas com a ferramenta integrada imagegen em 21/10/2026. São ilustrações genéricas, não fotografias de trabalhos reais da ArtUP. A identidade visual usa rosa, carvão e tons claros, seguindo o painel de estatísticas. O logotipo existente em `logos/logo.png` foi preservado.
+Esta pasta contém as imagens da interface. As cinco imagens de produtos foram geradas com a ferramenta integrada imagegen em 21/10/2026 e são ilustrações genéricas, não fotografias de trabalhos reais da ArtUP. O logotipo existente foi preservado.
 
-| Arquivo | Uso |
-| --- | --- |
-| `grafica-colecao.png` | Página inicial e apoio visual de autenticação |
-| `banner.png` | Categoria e formulário de banners |
-| `adesivos.png` | Categoria e formulário de adesivos |
-| `placas.png` | Categoria e formulário de placas |
-| `papelaria.png` | Categoria e formulário de papelaria |
+## Arquivos e utilização
+
+| Arquivo | Dimensões | Uso atual |
+| --- | --- | --- |
+| [grafica-colecao.png](grafica-colecao.png) | 1536 × 1024 px | Imagem principal da página inicial (`index.php`). |
+| [adesivos.png](adesivos.png) | 1536 × 1024 px | Página inicial, catálogo e formulário de adesivos. |
+| [banner.png](banner.png) | 1536 × 1024 px | Página inicial, catálogo e formulário de banners. |
+| [placas.png](placas.png) | 1536 × 1024 px | Página inicial, catálogo e formulário de placas. |
+| [papelaria.png](papelaria.png) | 1536 × 1024 px | Página inicial, catálogo e formulário de papelaria. |
+| [logos/logo.png](logos/logo.png) | 1563 × 1563 px | Logotipo original do cabeçalho compartilhado. |
+
+As imagens de produtos usam a paleta rosa `#a81759`, carvão `#171820` e tons claros. Os templates identificam os exemplos como ilustrativos. As imagens de produtos não são usadas atualmente nas telas de login ou cadastro.
+
+## Manutenção
+
+- Mantenha os nomes e caminhos ao substituir uma imagem para preservar as referências dos templates. Se mudar o caminho, atualize seus usos na página inicial, no catálogo e no formulário compartilhado.
+- As cinco imagens de produtos têm proporção 3:2. Ao trocar suas dimensões, confira os atributos `width`/`height` e o enquadramento nas páginas.
+- O logotipo em `logos/logo.png` pertence à identidade existente; os prompts abaixo se referem somente às cinco imagens genéricas.
+- Artes enviadas pelos clientes ficam no PostgreSQL, não nesta pasta. Consulte o [guia das artes](../docs/funcionalidades.md#artes) para os formatos, limites e regras de acesso.
 
 ## Prompts utilizados
 

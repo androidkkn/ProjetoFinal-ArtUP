@@ -89,4 +89,4 @@ relevantes forem verificadas, a documentação estiver coerente e eventuais migr
 execução/reversão compatível com os dados. Credenciais e dados pessoais não entram nos documentos.
 
 A suíte automatizada anterior foi removida a pedido e não foi recriada nesta entrega. Sua remoção não
-resolve os achados de segurança. As validações do painel são descritas em [estatisticas.md](estatisticas.md).
+resolve os achados de segurança. As validações do painel são descritas em [estatísticas](funcionalidades.md#estatisticas).

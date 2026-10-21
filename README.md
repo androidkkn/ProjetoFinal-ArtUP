@@ -15,7 +15,7 @@ O projeto usa **PHP procedural, HTML/CSS e PostgreSQL via PDO**, com páginas re
 
 Administradores também podem editar tarifas e itens, mudar status, aprovar/recusar cancelamentos, excluir pedidos e consultar o painel por período. Os status são Pendente (`pendente`), Em produção (`em producao`), Retirada (`retirada`), Entregue (`concluido`) e Cancelado (`cancelado`). A chave `concluido` foi preservada por compatibilidade com os pedidos existentes.
 
-Em **Administração → Clientes**, o administrador consulta todos os usuários, busca por nome/e-mail/ID e abre o resumo de valores e o histórico paginado de cada conta. Veja [docs/clientes.md](docs/clientes.md).
+Em **Administração → Clientes**, o administrador consulta todos os usuários, busca por nome/e-mail/ID e abre o resumo de valores e o histórico paginado de cada conta. Veja [clientes](docs/funcionalidades.md#clientes).
 
 O painel mostra valores de pedidos, **não pagamentos recebidos ou lucro**. Não existem fluxos implementados de pagamento, envio de notificações ou recuperação de senha.
 
@@ -67,7 +67,7 @@ As consultas esperam estas tabelas e colunas principais:
 | `carrinho` | `id`, `id_usuario`, `id_produto`, `preco_unitario`, `valor_total` |
 | `pedido` | `id`, `id_usuario`, `id_produto`, `data`, `status`, `preco_unitario`, `valor_total` |
 
-Essa lista descreve dependências do código; **não substitui o DDL**, seus tipos, defaults, índices e relacionamentos. O [diagrama](docs/diagramas.md) documenta o modelo conhecido. As medidas persistidas em `produto` permanecem em metros; a interface converte para centímetros. As colunas de preço já precisam existir em `carrinho` e `pedido`.
+Essa lista descreve dependências do código; **não substitui o DDL**, seus tipos, defaults, índices e relacionamentos. Os [diagramas do banco](docs/banco-de-dados.md#modelo-de-dados) documentam as nove tabelas confirmadas, incluindo artes e cancelamentos. As medidas persistidas em `produto` permanecem em metros; a interface converte para centímetros. As colunas de preço já precisam existir em `carrinho` e `pedido`.
 
 Os IDs de categoria são fixos nos formulários e nas regras:
 
@@ -78,7 +78,7 @@ Os IDs de categoria são fixos nos formulários e nas regras:
 | 3 | Placas | `app/servicos/placas.php` |
 | 4 | Banners | `app/servicos/banner.php` |
 
-[docs/parametros_principais.pgsql](docs/parametros_principais.pgsql) contém consultas e exemplos de inserção de categorias, tipos e tarifas. Não é migração nem seed idempotente: os INSERTs pressupõem essa correspondência de IDs e sua repetição pode duplicar dados. Revise o banco antes de usar esses exemplos.
+O [guia do banco](docs/banco-de-dados.md#parametros-iniciais) contém consultas e exemplos de inserção de categorias, tipos e tarifas. Esses exemplos não são migração nem seed idempotente: os INSERTs pressupõem essa correspondência de IDs e sua repetição pode duplicar dados. Revise o banco antes de usá-los.
 
 ### 3. Configure as credenciais
 
@@ -148,7 +148,7 @@ O cadastro público sempre cria cliente (`admin=false`). Não existe conta admin
 
 ### Preços
 
-Os exemplos usam **os valores do arquivo de parâmetros**, não uma leitura das tarifas do banco instalado:
+Os exemplos usam **os valores SQL documentados no guia do banco**, não uma leitura das tarifas do banco instalado:
 
 | Entrada | Cálculo atual | Resultado |
 | --- | --- | --- |
@@ -156,7 +156,7 @@ Os exemplos usam **os valores do arquivo de parâmetros**, não uma leitura das 
 | Papel sulfite A3, 1 unidade; A4 = R$ 0,50 | A3 = 2 × A4 | R$ 1,00 |
 | Papel sulfite A8, 10 unidades; A4 = R$ 0,50 | Unidade = arredondar(0,50 × 0,0625, 2) | R$ 0,03 por unidade; total R$ 0,30 |
 
-Adesivos/banners somam o valor base à área × tarifa. Placas usam somente área × tarifa; espessuras de 1, 2 e 3 mm têm a mesma regra. Papelaria usa fatores A1–A8 relativos ao A4. O cálculo usa `NUMERIC` no PostgreSQL e arredonda a unidade antes de multiplicar pela quantidade. Veja [preços](docs/precos.md).
+Adesivos/banners somam o valor base à área × tarifa. Placas usam somente área × tarifa; espessuras de 1, 2 e 3 mm têm a mesma regra. Papelaria usa fatores A1–A8 relativos ao A4. O cálculo usa `NUMERIC` no PostgreSQL e arredonda a unidade antes de multiplicar pela quantidade. Veja [preços](docs/funcionalidades.md#precos).
 
 ### Funções sem conexão com o banco
 
@@ -224,14 +224,14 @@ ProjetoFinal-ArtUP/
 │   └── migrations/              SQL adicional; não contém o schema base completo
 ├── docs/                        Guias, auditoria, diagrama e backlog
 ├── img/                         Logotipo e imagens genéricas provisórias
-└── .superdesign/                Contexto de design; não participa da execução PHP
+└── Estilizacoes/                Contexto e referências de design; não participa da execução PHP
 ```
 
 As páginas combinam guarda de sessão, funções com PDO e renderização HTML/redirecionamento. A ordem exata varia: não reordene includes indiscriminadamente. `functions.php` reutiliza `$conexao` quando já é uma instância de PDO; `functions_core.php` pode ser incluído isoladamente em verificações sem banco.
 
 As imagens de produtos e o design system unificado em `css/estilo.css` estão integrados aos templates (`index.php`, catálogo, serviços, carrinho, pedidos e telas administrativas), estendendo o padrão visual e de acessibilidade do painel de estatísticas para toda a aplicação. Os prompts das imagens estão documentados em [img/README.md](img/README.md).
 
-A revisão posterior com Superdesign corrigiu a carga do helper de navegação no cadastro, o campo de upload em telas pequenas e a consistência dos menus. O escopo, a prévia visual e as 52 verificações de página e 32 verificações de contratos/acessibilidade estão em [docs/revisao-visual.md](docs/revisao-visual.md).
+A revisão posterior com Superdesign corrigiu a carga do helper de navegação no cadastro, o campo de upload em telas pequenas e a consistência dos menus. O escopo, a prévia visual e as 52 verificações de página e 32 verificações de contratos/acessibilidade estão em [revisão visual](docs/revisoes.md#revisao-visual).
 
 ## Testes e validação
 
@@ -261,7 +261,7 @@ Lint verifica sintaxe, não preços, permissões ou transações. Para testes fu
 
 Roteiro manual sugerido em ambiente isolado: cadastro/login; prévia dos quatro serviços; alteração de dados após a prévia; upload válido/inválido; remoção e confirmação do carrinho; download autorizado/negado; cancelamento e decisão administrativa; exclusão com produto compartilhado; filtro válido/inválido das estatísticas; logout por GET e POST.
 
-Nesta revisão, os 30 arquivos PHP passaram no lint antes da alteração. Foram comparadas 150 observações antes/depois em roteiro temporário, incluindo consultas/parâmetros, commit/rollback, logs de erro, validações, datas e URLs. Os detalhes, limites e resultado final estão em [docs/manutencao.md](docs/manutencao.md). Esse roteiro não é suíte versionada nem validação de integração com PostgreSQL real.
+Nesta revisão, os 30 arquivos PHP passaram no lint antes da alteração. Foram comparadas 150 observações antes/depois em roteiro temporário, incluindo consultas/parâmetros, commit/rollback, logs de erro, validações, datas e URLs. Os detalhes, limites e resultado final estão em [revisão de manutenção](docs/revisoes.md#manutencao). Esse roteiro não é suíte versionada nem validação de integração com PostgreSQL real.
 
 ## Contribuição e manutenção
 
@@ -277,4 +277,4 @@ Não foram encontrados licença, política formal de contribuição, automação
 
 ## Documentação complementar
 
-Veja o [índice de documentação](docs/README.md), com guias de [preços](docs/precos.md), [artes](docs/artes.md), [pedidos](docs/pedidos.md), [navegação](docs/navegacao.md), [estatísticas](docs/estatisticas.md), [modelo de dados](docs/diagramas.md), [auditoria histórica](docs/auditoria.md), [backlog](docs/product-backlog.md) e [revisão de manutenção](docs/manutencao.md).
+Veja o [índice de documentação](docs/README.md), com os guias consolidados de [funcionalidades](docs/funcionalidades.md), [banco de dados](docs/banco-de-dados.md), [auditoria histórica](docs/auditoria.md), [product backlog](docs/product-backlog.md) e [histórico de revisões](docs/revisoes.md).
