@@ -297,9 +297,7 @@ function excluir_produto_carrinho($conexao, $id_usuario, $id_carrinho)
             $conexao->rollBack();
             return false;
         }
-        $stmt = $conexao->prepare('DELETE FROM produto WHERE id = :produto
-            AND NOT EXISTS (SELECT 1 FROM pedido WHERE id_produto = produto.id)
-            AND NOT EXISTS (SELECT 1 FROM carrinho WHERE id_produto = produto.id)');
+        $stmt = $conexao->prepare(SQL_EXCLUIR_PRODUTO_SEM_VINCULOS);
         $stmt->execute(['produto' => $id_produto]);
         $conexao->commit();
         return true;

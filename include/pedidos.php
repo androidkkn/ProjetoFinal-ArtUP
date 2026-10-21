@@ -3,6 +3,12 @@
 const STATUS_CANCELAMENTO = ['pendente' => 'Em análise', 'aprovado' => 'Aprovado', 'recusado' => 'Recusado'];
 const PEDIDOS_CANCELAVEIS = ['pendente', 'em producao'];
 
+// Usada após remover um item do carrinho ou um pedido, dentro da transação do chamador.
+// Os vínculos restantes preservam o produto e, por consequência, sua arte.
+const SQL_EXCLUIR_PRODUTO_SEM_VINCULOS = 'DELETE FROM produto WHERE id = :produto
+            AND NOT EXISTS (SELECT 1 FROM pedido WHERE id_produto = produto.id)
+            AND NOT EXISTS (SELECT 1 FROM carrinho WHERE id_produto = produto.id)';
+
 function solicitar_cancelamento_pedido($conexao, $id_pedido, $motivo = '')
 {
     $id_pedido = validar_inteiro_positivo($id_pedido);
@@ -117,9 +123,7 @@ function excluir_pedido_admin($conexao, $id_pedido)
             $conexao->rollBack();
             return false;
         }
-        $stmt = $conexao->prepare('DELETE FROM produto WHERE id = :produto
-            AND NOT EXISTS (SELECT 1 FROM pedido WHERE id_produto = produto.id)
-            AND NOT EXISTS (SELECT 1 FROM carrinho WHERE id_produto = produto.id)');
+        $stmt = $conexao->prepare(SQL_EXCLUIR_PRODUTO_SEM_VINCULOS);
         $stmt->execute(['produto' => $id_produto]);
         $conexao->commit();
         return true;

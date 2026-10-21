@@ -8,7 +8,11 @@ if ($logado) {
 }
 ?>
 <header>
-    <div><a href="<?= $url_menu('index.php') ?>" aria-label="ArtUP — Início"><img src="<?= $url_menu('img/logos/logo.png') ?>" alt="Logo ArtUP" width="10%"></a></div>
+    <div class="header-logo">
+        <a class="logo-link" href="<?= $url_menu('index.php') ?>" aria-label="ArtUP — Início">
+            <img src="<?= $url_menu('img/logos/logo.png') ?>" alt="Logo ArtUP">
+        </a>
+    </div>
     <div>
         <nav aria-label="Navegação principal">
             <a href="<?= $url_menu('index.php') ?>">Início</a>
