@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../include/functions.php';
+require_once __DIR__ . '/../include/navegacao.php';
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
