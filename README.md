@@ -28,7 +28,7 @@ O painel mostra valores de pedidos, **não pagamentos recebidos ou lucro**. Não
 | Suporte a `PASSWORD_ARGON2ID` | Necessário para cadastrar contas. O cadastro é recusado quando esse suporte está ausente. |
 | Fileinfo e GD | Identificação de MIME e decodificação de PNG/JPEG/WEBP. GD deve suportar esses formatos. |
 | Sessões, Filter, PCRE, JSON e funções de data do PHP | Autenticação, validação e estatísticas. |
-| PostgreSQL acessível e banco base compatível | O SQL usa `BYTEA`, `LATERAL`, `RETURNING`, `JSONB`, índices parciais e colunas de identidade. Não há versão mínima suportada declarada. |
+| PostgreSQL 18.x e ferramentas `psql`, `createuser`, `createdb` | O dump foi gerado na versão 18.6 e contém comandos do cliente `psql`. Não há matriz de compatibilidade testada com outras versões. |
 | Diretórios temporário e de sessão graváveis pelo PHP | Upload HTTP e persistência das sessões. |
 
 A revisão de manutenção foi executada com **PHP CLI 8.5.9**. A versão do servidor PHP/FPM ou banco de produção não foi verificada nesta revisão. Não foi encontrada chamada de produção que exija mbstring; sua presença no ambiente da auditoria histórica não é uma dependência demonstrada do aplicativo atual.
@@ -51,70 +51,93 @@ php --ini
 
 Os comandos pressupõem `php` no `PATH`. No Windows, também é possível usar o caminho completo para `php.exe`. Confira as extensões e o `php.ini` carregado; o PHP do servidor web pode usar configuração diferente da CLI.
 
-### 2. Prepare um banco compatível
+### 2. Crie um banco vazio e importe o dump
 
-**O repositório ainda não instala o banco do zero.** As migrações disponíveis criam artes e cancelamentos, mas dependem das tabelas base. Obtenha um banco/schema compatível com o responsável pelo projeto antes de executá-las. Não há dump completo, instalador ou comando de restauração único confirmado no checkout.
+O arquivo [database/dump_banco.sql](database/dump_banco.sql) é um dump **SQL em texto**, gerado com PostgreSQL/pg_dump **18.6**. Ele inclui as nove tabelas, dados iniciais, sequências, índices e chaves estrangeiras, inclusive artes e cancelamentos. Use PostgreSQL 18.x e o cliente `psql` 18.x para seguir este tutorial.
 
-As consultas esperam estas tabelas e colunas principais:
+Confira as ferramentas do PostgreSQL:
 
-| Tabela | Colunas usadas |
+```sh
+psql --version
+createuser --version
+createdb --version
+```
+
+Se os comandos não forem encontrados no Windows, adicione a pasta `bin` da sua instalação ao `PATH`. Exemplo para a instalação padrão da versão 18, na sessão atual do PowerShell:
+
+```powershell
+$env:Path = 'C:\Program Files\PostgreSQL\18\bin;' + $env:Path
+```
+
+Crie uma conta de banco chamada `artup`; `--pwprompt` solicita a senha que você usará no arquivo de configuração. Os comandos abaixo pressupõem uma instalação local na porta 5432 e a conta administrativa do PostgreSQL chamada `postgres`. Ajuste esses valores conforme sua instalação.
+
+```sh
+createuser -h 127.0.0.1 -p 5432 -U postgres --pwprompt artup
+createdb -h 127.0.0.1 -p 5432 -U postgres --owner=artup artup
+```
+
+Na raiz do repositório, importe o dump no banco recém-criado:
+
+```sh
+psql -h 127.0.0.1 -p 5432 -U artup -d artup --set=ON_ERROR_STOP=1 --single-transaction --file=database/dump_banco.sql
+```
+
+Use a senha definida no `createuser`. O dump não exige a conta proprietária do banco de origem: as instruções de troca de proprietário foram removidas para que os objetos pertençam ao usuário que executa a importação.
+
+Importe em **banco vazio**. O arquivo cria tabelas e carrega dados; não é uma atualização idempotente. `ON_ERROR_STOP` interrompe ao primeiro erro, e `--single-transaction` reverte a importação inteira nesse caso. O dump é SQL com `COPY` e comandos próprios do `psql`, como `\restrict`; use `psql`, não `pg_restore` nem o editor de consultas do pgAdmin.
+
+Se a conta `artup` já existir, reutilize-a com sua senha. Se o banco `artup` já contiver dados, crie outro banco vazio e ajuste `-d` e `$nomeDB`; não repita a importação sobre a instalação existente.
+
+O dump atual contém:
+
+| Conteúdo | Quantidade |
 | --- | --- |
-| `usuarios` | `id`, `nome`, `email`, `senha`, `admin` |
-| `categorias` | `id`, `nome` |
-| `tipos_de_produto` | `id`, `id_categoria`, `nome`, `valor_base` |
-| `precodimensoes` | `id_categoria`, `valormetro`; o `ON CONFLICT (id_categoria)` exige unicidade correspondente |
-| `produto` | `id`, `id_categoria`, `quantidade`, `largura`, `comprimento`, `tamanho`, `grossura`, `id_tipo` |
-| `carrinho` | `id`, `id_usuario`, `id_produto`, `preco_unitario`, `valor_total` |
-| `pedido` | `id`, `id_usuario`, `id_produto`, `data`, `status`, `preco_unitario`, `valor_total` |
+| Categorias | 4 |
+| Tipos de produto | 11 |
+| Tarifas por categoria | 4 |
+| Produtos existentes | 18 |
+| Conta administrativa demonstrativa | 1 |
+| Pedidos, carrinho, artes e solicitações de cancelamento | 0 |
 
-Essa lista descreve dependências do código; **não substitui o DDL**, seus tipos, defaults, índices e relacionamentos. Os [diagramas do banco](docs/banco-de-dados.md#modelo-de-dados) documentam as nove tabelas confirmadas, incluindo artes e cancelamentos. As medidas persistidas em `produto` permanecem em metros; a interface converte para centímetros. As colunas de preço já precisam existir em `carrinho` e `pedido`.
+Os 18 produtos são registros do snapshot e não representam pedidos confirmados. As categorias usam IDs fixos: **1 = adesivos, 2 = papelaria, 3 = placas e 4 = banners**. Não execute novamente os INSERTs de exemplo do guia do banco após restaurar o dump.
 
-Os IDs de categoria são fixos nos formulários e nas regras:
-
-| ID | Categoria | Página |
-| --- | --- | --- |
-| 1 | Adesivos | `app/servicos/adesivos.php` |
-| 2 | Papelaria | `app/servicos/papelaria.php` |
-| 3 | Placas | `app/servicos/placas.php` |
-| 4 | Banners | `app/servicos/banner.php` |
-
-O [guia do banco](docs/banco-de-dados.md#parametros-iniciais) contém consultas e exemplos de inserção de categorias, tipos e tarifas. Esses exemplos não são migração nem seed idempotente: os INSERTs pressupõem essa correspondência de IDs e sua repetição pode duplicar dados. Revise o banco antes de usá-los.
+Os [diagramas do banco](docs/banco-de-dados.md#modelo-de-dados) detalham as tabelas e os relacionamentos. Medidas persistidas em `produto` continuam em metros; a interface usa centímetros.
 
 ### 3. Configure as credenciais
 
-Crie manualmente `database/credenciais.php`, já ignorado pelo Git. O formato corresponde às variáveis lidas por [database/connect.php](database/connect.php); os valores abaixo são exemplos, não credenciais existentes:
+Crie `database/credenciais.php`, já ignorado pelo Git. Use o mesmo banco, usuário e senha dos comandos anteriores. O formato corresponde às variáveis lidas por [database/connect.php](database/connect.php):
 
 ```php
 <?php
 $ip = '127.0.0.1';
 $nomeDB = 'artup';
-$nomeUSR = 'usuario_do_banco';
-$senha = 'substitua_pela_senha_local';
+$nomeUSR = 'artup';
+$senha = 'senha_definida_no_createuser';
 ```
 
 A conexão monta o DSN `pgsql:host=...;dbname=...` e habilita `PDO::ERRMODE_EXCEPTION`. O arquivo atual não oferece campos próprios para porta ou modo SSL.
 
 **Não existe carregamento de `.env`, `$_ENV` ou `getenv()` na aplicação.** Definir `DB_HOST`, `DATABASE_URL` ou `APP_ENV` no terminal não configura este código. A conexão depende do arquivo PHP acima; limites e opções de sessão dependem do `php.ini`/servidor. Não versione credenciais nem copie seus valores para logs ou documentação.
 
-### 4. Execute as migrações adicionais
+### 4. Confira a restauração
 
-Depois de preparar o banco base e conferir as credenciais, execute na raiz:
+Verifique as tabelas e os dados iniciais:
+
+```sh
+psql -h 127.0.0.1 -p 5432 -U artup -d artup --command="\dt public.*"
+psql -h 127.0.0.1 -p 5432 -U artup -d artup --command="SELECT (SELECT COUNT(*) FROM categorias) AS categorias, (SELECT COUNT(*) FROM tipos_de_produto) AS tipos, (SELECT COUNT(*) FROM usuarios WHERE admin = TRUE) AS administradores;"
+```
+
+Após importar o dump fornecido, são esperadas nove tabelas e as contagens `4`, `11` e `1`, respectivamente.
+
+**O dump já inclui as migrações 001 e 002.** Não é necessário executá-las para instalar esta versão a partir dele. Os scripts abaixo permanecem disponíveis para bancos anteriores que já tenham as tabelas base e precisem receber/verificar as estruturas adicionais:
 
 ```sh
 php database/migrar_artes.php
 php database/migrar_cancelamentos.php
 ```
 
-Saídas de sucesso definidas nos scripts:
-
-```text
-Estrutura de artes criada/verificada com sucesso.
-Estrutura de solicitações de cancelamento criada/verificada com sucesso.
-```
-
-Os scripts aceitam apenas CLI; acesso HTTP retorna 404. Eles executam SQL com `BEGIN`/`COMMIT`. Falhas de migração tratadas retornam código de saída 1 e mensagem com o código da exceção. Falhas de conexão são tratadas separadamente por `connect.php`.
-
-A primeira migração cria `artes` e um índice de rascunhos. A segunda cria `solicitacoes_cancelamento`, seus índices e adapta a referência legada `carrinho.id_pedido`, quando presente, para `ON DELETE SET NULL`. Há verificações para repetição, mas não um controle de versões de schema nem scripts de reversão. Valide numa cópia do banco e faça backup antes de aplicar em dados persistentes.
+Eles aceitam somente CLI; acesso HTTP retorna 404. As mensagens de sucesso são `Estrutura de artes criada/verificada com sucesso.` e `Estrutura de solicitações de cancelamento criada/verificada com sucesso.` As migrações são aditivas e não substituem a importação inicial do dump.
 
 ### 5. Confira upload e sessão
 
@@ -142,7 +165,16 @@ Abra `http://127.0.0.1:8000/login/login.php`. O cadastro está em `/login/cadast
 
 Esse comando é para desenvolvimento local em loopback. A raiz contém `.git`, documentação e arquivos internos; não há configuração de implantação pública versionada. Não exponha esse servidor como instalação de produção. Os requisitos de publicação abertos estão na [auditoria](docs/auditoria.md) e no [backlog](docs/product-backlog.md).
 
-O cadastro público sempre cria cliente (`admin=false`). Não existe conta administrativa padrão nem tela de promoção de usuários. Para testar a área administrativa, é necessária uma conta com papel administrativo previamente configurado no banco pelo responsável; o papel é copiado para a sessão no login.
+### Acesso administrativo de demonstração
+
+Após restaurar o dump, entre com a conta incluída:
+
+| Campo | Valor |
+| --- | --- |
+| E-mail | `adminzudo@admininstrador.com` |
+| Senha | `temqpagarprasaberasenha` |
+
+Essas credenciais são públicas e destinadas à demonstração local. A senha dessa conta está em texto puro no dump; não reutilize essa conta em uma instalação pública. O cadastro de novas contas continua usando hash Argon2id e criando clientes (`admin=false`). Não há tela de promoção de usuários; o papel administrativo é copiado para a sessão no login.
 
 ## Exemplos de uso e contratos atuais
 
@@ -217,11 +249,12 @@ ProjetoFinal-ArtUP/
 │   ├── header.php / HeaderAdmin.php  Menus por perfil e navegação administrativa
 │   └── footer.php               Rodapé compartilhado
 ├── database/
+│   ├── dump_banco.sql           Estrutura completa e dados de demonstração
 │   ├── connect.php              Cria PDO e trata falha de conexão
 │   ├── credenciais.php          Configuração local, não versionada
 │   ├── migrar_artes.php         Entrada CLI da migração 001
 │   ├── migrar_cancelamentos.php Entrada CLI da migração 002
-│   └── migrations/              SQL adicional; não contém o schema base completo
+│   └── migrations/              Migrações adicionais já incorporadas ao dump
 ├── docs/                        Guias, auditoria, diagrama e backlog
 ├── img/                         Logotipo e imagens genéricas provisórias
 └── Estilizacoes/                Contexto e referências de design; não participa da execução PHP

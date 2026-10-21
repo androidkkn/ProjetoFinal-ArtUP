@@ -21,4 +21,4 @@ O [README principal](../README.md) concentra requisitos, instalação, configura
 
 Os antigos guias separados foram incorporados aos documentos acima. Os exemplos SQL agora ficam no [guia do banco](banco-de-dados.md#parametros-iniciais); não são instalador nem seed idempotente.
 
-Os testes antigos foram removidos a pedido. Os resultados nos relatórios são históricos, não uma suíte disponível no checkout. A instalação a partir de banco vazio continua pendente de uma baseline completa. As imagens provisórias e seus prompts estão documentados em [img/README.md](../img/README.md).
+Os testes antigos foram removidos a pedido. Os resultados nos relatórios são históricos, não uma suíte disponível no checkout. A instalação em banco vazio usa o [dump SQL](../database/dump_banco.sql), conforme o [tutorial principal](../README.md#instalação-e-configuração). As imagens provisórias e seus prompts estão documentados em [img/README.md](../img/README.md).
