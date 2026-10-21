@@ -1,7 +1,10 @@
 <?php
 require_once __DIR__ . '/../include/functions.php';
+require_once __DIR__ . '/../include/navegacao.php';
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 $erroLogin = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -24,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         session_regenerate_id(true);
         $_SESSION['id'] = $usuario['id'];
         $_SESSION['admin'] = (bool) $usuario['admin'];
-        header('Location: ../index.php');
+        header('Location: ' . url_app('index.php'));
         exit();
     }
 
@@ -40,9 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Pagina de login</title>
 </head>
 <body>
-    <header>
-        <p>Para acessar a barra de navegação faça o seu login</p>
-    </header>
+    <?php include __DIR__ . '/../include/header.php'; ?>
     <main>
         <section>
             <h1>Faça o login para continuar</h1>

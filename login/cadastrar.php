@@ -1,5 +1,8 @@
 <?php
 require_once __DIR__ . '/../include/functions.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 $erroCadastro = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -33,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body>
+    <?php include __DIR__ . '/../include/header.php'; ?>
     <main>
         <section>
             <h1>Faça o cadastro para continuar</h1>
