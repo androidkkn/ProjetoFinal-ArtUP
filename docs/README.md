@@ -1,29 +1,37 @@
-# Documentação breve — ArtUP
+# ArtUP
 
-O projeto possui a estrutura inicial de um site para a gráfica ArtUP, com páginas para apresentar a empresa, mostrar os serviços e organizar as áreas de clientes e administração. Esta documentação considera apenas os arquivos fora da pasta `docs`.
+Aplicação PHP procedural com PostgreSQL para orçamento e pedidos de uma gráfica.
 
-## O que foi feito
+- Cadastro/login de clientes e acesso administrativo por sessão.
+- Adesivos, banners e placas com medidas em centímetros, cálculo no servidor e prévia antes da inclusão; papelaria por formato A1–A8.
+- Carrinho e confirmação atômica em pedidos, preservando o preço aceito.
+- Upload de artes PNG/JPEG/WEBP/PDF, rascunhos e download restrito ao proprietário ou administrador.
+- Administração de preços, itens e status; exclusão de pedidos por administrador.
+- Solicitação de cancelamento pelo cliente, decisão administrativa e histórico de respostas.
+- Estatísticas administrativas com filtro por período, indicadores, distribuição por status, evolução mensal e categorias.
 
-- **Página inicial (`index.php`):** criada com as seções “Sobre Nós” e novidades. Os textos e algumas referências de imagens ainda são provisórios.
-- **Cabeçalho (`include/header.php`):** apresenta o logotipo e os links para início, catálogo, meus pedidos e carrinho.
-- **Rodapé (`include/footer.php`):** criado como arquivo compartilhado, ainda com conteúdo provisório.
-- **Catálogo (`app/catalogo.php`):** apresenta oito categorias: produtos em lona, adesivos, placas, produtos rígidos, estampa em roupas, impressões 3D, papelaria e outros produtos. Os links das categorias ainda não têm destino definido.
-- **Meus pedidos (`app/meus_pedidos.php`):** contém o título da página, um campo de pesquisa pelo número do produto e uma seção reservada para exibir os pedidos. A pesquisa e a listagem ainda não possuem processamento implementado.
-- **Carrinho (`app/carrinho.php`):** guarda e exibe produtos do cliente em verificação, sem criar pedidos. O cliente pode excluir um item ou clicar em “Confirmar pedidos” para transferir os itens para `pedido`, com status `pendente`. Os valores cadastrados nos itens são preservados na confirmação. Registros antigos com status `carrinho` permanecem no banco como histórico e ficam fora da listagem de pedidos confirmados. A migração está em `carrinho_em_verificacao.pgsql`.
-- **Administração (`admin/`):** a página `estatisticas.php` contém uma navegação inicial para estatísticas, orçamento, pedidos, produtos e Kanban. Os arquivos `pedidos.php` e `produtos.php` estão vazios; as páginas de orçamento e Kanban referenciadas no menu ainda não existem.
+Alguns textos, o rodapé compartilhado e as imagens da loja/catálogo ainda precisam ser concluídos.
+Há achados de segurança abertos: a aprovação funcional não representa liberação para produção.
 
-## Como o projeto foi organizado
-
-As páginas usam **HTML** para estruturar o conteúdo e **PHP** para incluir o cabeçalho e o rodapé. Isso permite compartilhar esses elementos entre as páginas e centralizar suas alterações.
-
-| Local | Finalidade |
+| Documento | Conteúdo |
 | --- | --- |
-| `index.php` | Página inicial do site. |
-| `app/` | Páginas destinadas ao cliente. |
-| `admin/` | Arquivos da área administrativa. |
-| `include/` | Cabeçalho e rodapé compartilhados. |
-| `img/` | Imagens do projeto; atualmente contém o logotipo. |
+| [auditoria.md](auditoria.md) | Registro histórico da auditoria, com achados, severidade e correções recomendadas. |
+| [estatisticas.md](estatisticas.md) | Indicadores, filtros, regras de valores e funcionamento do painel administrativo. |
+| [product-backlog.md](product-backlog.md) | Entregas concluídas, prioridades, histórias, critérios de aceitação e dependências. |
+| [precos.md](precos.md) | Fórmulas, arredondamento, prévia e armazenamento dos preços. |
+| [artes.md](artes.md) | Formatos, limites, rascunhos, vínculo e acesso às artes. |
+| [pedidos.md](pedidos.md) | Cancelamento, decisões e exclusão administrativa. |
+| [navegacao.md](navegacao.md) | Links por perfil, subdiretórios e logout. |
 
-## Estado atual
+## Execução e banco
 
-Foi montada a base das páginas e da navegação. Nos arquivos analisados, ainda não há conexão com banco de dados, autenticação, operações de produtos e pedidos, cálculos de estatísticas, CSS ou JavaScript. Também faltam as imagens referenciadas na página inicial e no catálogo, além da finalização dos textos e do rodapé.
+A conexão atual lê `database/credenciais.php`, arquivo local ignorado no Git, com as variáveis `$ip`,
+`$nomeDB`, `$nomeUSR` e `$senha`. Não versione seus valores. A aplicação utiliza PHP com PDO/PostgreSQL,
+Fileinfo, GD e mbstring.
+
+As migrações de [artes](../database/migrations/001_artes.sql) e
+[cancelamentos](../database/migrations/002_cancelamentos.sql) exigem as tabelas base já existentes.
+O checkout atual ainda precisa de uma baseline de produção reproduzível.
+
+Os arquivos da suíte de testes, suas ferramentas e os resultados foram removidos a pedido.
+O relatório de auditoria foi mantido como registro histórico.
