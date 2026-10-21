@@ -1,10 +1,13 @@
 <?php
-require_once __DIR__ . '/../include/functions.php';
 require_once __DIR__ . '/../login/verifica_user.php';
+require_once __DIR__ . '/../include/functions.php';
 
 $escapar = static fn($valor) => htmlspecialchars((string) $valor, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 $pesquisa = $_GET['pesquisa_produto'] ?? '';
 $erro = '';
+$_SESSION['csrf_meus_pedidos'] ??= bin2hex(random_bytes(32));
+$mensagem = $_SESSION['mensagem_meus_pedidos'] ?? '';
+unset($_SESSION['mensagem_meus_pedidos']);
 $numero_produto = null;
 if (!is_string($pesquisa)) {
     $pesquisa = '';
@@ -16,6 +19,19 @@ if (!is_string($pesquisa)) {
         if (!$numero_produto || $numero_produto < 1 || $numero_produto > 2147483647) {
             $erro = 'Informe um número de produto válido.';
         }
+    }
+}
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $token = $_POST['csrf_token'] ?? null;
+    if (!is_string($token) || !hash_equals($_SESSION['csrf_meus_pedidos'], $token)) {
+        $erro = 'Recarregue a página e tente enviar novamente.';
+    } elseif (($_POST['acao'] ?? '') === 'solicitar_cancelamento'
+        && solicitar_cancelamento_pedido($conexao, $_POST['id_pedido'] ?? null, $_POST['motivo'] ?? '')) {
+        $_SESSION['mensagem_meus_pedidos'] = 'Solicitação de cancelamento enviada. Aguarde a análise da gráfica.';
+        header('Location: meus_pedidos.php' . ($pesquisa !== '' ? '?pesquisa_produto=' . rawurlencode($pesquisa) : ''), true, 303);
+        exit;
+    } else {
+        $erro = 'Não foi possível solicitar o cancelamento. O pedido deve ser seu, estar pendente ou em produção e não ter outra solicitação em análise. O motivo pode ter até 1000 caracteres.';
     }
 }
 // O usuário vem exclusivamente do login, inclusive quando há pesquisa.
@@ -53,6 +69,7 @@ $pedidos = $erro === '' ? meus_pedidos($conexao, $_SESSION['id'], $numero_produt
 
         <section class="pedidos">
 
+            <?php if ($mensagem !== ''): ?><p role="status"><?= $escapar($mensagem) ?></p><?php endif; ?>
             <?php if ($erro !== ''): ?>
                 <p role="alert"><?= $escapar($erro) ?></p>
             <?php elseif ($pedidos === false): ?>
@@ -72,9 +89,11 @@ $pedidos = $erro === '' ? meus_pedidos($conexao, $_SESSION['id'], $numero_produt
                             <th scope="col">Quantidade</th>
                             <th scope="col">Preço unitário</th>
                             <th scope="col">Total do pedido</th>
-                            <th scope="col">Comprimento × largura</th>
+                            <th scope="col">Comprimento × largura (<?= $escapar(UNIDADE_MEDIDAS) ?>)</th>
                             <th scope="col">Tamanho</th>
                             <th scope="col">Espessura</th>
+                            <th scope="col">Arte</th>
+                            <th scope="col">Cancelamento</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -83,7 +102,7 @@ $pedidos = $erro === '' ? meus_pedidos($conexao, $_SESSION['id'], $numero_produt
                                 <td><?= $escapar($pedido['id_pedido']) ?></td>
                                 <td><?= $escapar($pedido['id_produto']) ?></td>
                                 <td><?= $escapar($pedido['data_formatada']) ?></td>
-                                <td><?= $escapar($pedido['status']) ?></td>
+                                <td><?= $escapar(STATUS_PEDIDOS[$pedido['status']] ?? $pedido['status']) ?></td>
                                 <td><?= $escapar($pedido['categoria']) ?><?php if ($pedido['tipo'] !== null): ?>
                                     / <?= $escapar($pedido['tipo']) ?><?php endif; ?></td>
                                 <td><?= $escapar($pedido['quantidade']) ?></td>
@@ -94,6 +113,30 @@ $pedidos = $erro === '' ? meus_pedidos($conexao, $_SESSION['id'], $numero_produt
                                 <?php else: ?>—<?php endif; ?></td>
                                 <td><?= $escapar($pedido['tamanho'] ?? '—') ?></td>
                                 <td><?= $pedido['grossura'] !== null ? $escapar($pedido['grossura']) . ' mm' : '—' ?></td>
+                                <td><?php if ($pedido['arte_nome'] !== null): ?>
+                                    <a href="arte.php?produto=<?= $escapar($pedido['id_produto']) ?>">Baixar <?= $escapar($pedido['arte_nome']) ?></a>
+                                <?php else: ?>Sem arte<?php endif; ?></td>
+                                <td>
+                                    <?php if ($pedido['cancelamento_status'] !== null): ?>
+                                        <p>Solicitação: <?= $escapar(STATUS_CANCELAMENTO[$pedido['cancelamento_status']]) ?>
+                                            — <?= $escapar($pedido['cancelamento_data']) ?></p>
+                                        <?php if ($pedido['cancelamento_motivo'] !== ''): ?><p><?= $escapar($pedido['cancelamento_motivo']) ?></p><?php endif; ?>
+                                    <?php endif; ?>
+                                    <?php if (in_array($pedido['status'], PEDIDOS_CANCELAVEIS, true) && $pedido['cancelamento_status'] !== 'pendente'): ?>
+                                        <form method="post">
+                                            <input type="hidden" name="acao" value="solicitar_cancelamento">
+                                            <input type="hidden" name="id_pedido" value="<?= $escapar($pedido['id_pedido']) ?>">
+                                            <input type="hidden" name="csrf_token" value="<?= $escapar($_SESSION['csrf_meus_pedidos']) ?>">
+                                            <label for="motivo_<?= $escapar($pedido['id_pedido']) ?>">Motivo (opcional)</label>
+                                            <textarea name="motivo" id="motivo_<?= $escapar($pedido['id_pedido']) ?>" maxlength="1000" rows="2"></textarea>
+                                            <button type="submit">Solicitar cancelamento</button>
+                                        </form>
+                                    <?php elseif ($pedido['cancelamento_status'] === 'pendente'): ?>
+                                        <p>Aguardando análise da gráfica. O pedido mantém o status atual até a decisão.</p>
+                                    <?php elseif ($pedido['cancelamento_status'] === null): ?>
+                                        <p>Indisponível para este status.</p>
+                                    <?php endif; ?>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
