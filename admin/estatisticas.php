@@ -33,6 +33,7 @@ $maior_mes = $dados !== false ? max(1, ...array_column($dados['por_mes'], 'pedid
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>Estatísticas de pedidos | ArtUP</title>
+    <link rel="icon" type="image/png" href="<?= htmlspecialchars(url_app('img/logos/logo.png'), ENT_QUOTES, 'UTF-8') ?>">
     <link rel="stylesheet" href="<?= $escapar(url_app('css/estilo.css')) ?>">
     <link rel="stylesheet" href="<?= $escapar(url_app('admin/estatisticas.css')) ?>">
 </head>
