@@ -4,6 +4,59 @@ declare(strict_types=1);
 
 const CLIENTES_POR_PAGINA = 25;
 
+/** Altera somente o perfil, preservando pelo menos uma conta administrativa. */
+function alterar_perfil_cliente_admin(PDO $conexao, mixed $id_usuario, mixed $administrador): string
+{
+    $id_admin = validar_inteiro_positivo($_SESSION['id'] ?? null);
+    $id_usuario = validar_inteiro_positivo($id_usuario);
+    if (!usuario_e_admin() || $id_admin === false) {
+        return 'proibido';
+    }
+    if ($id_usuario === false || !in_array($administrador, ['true', 'false'], true)) {
+        return 'invalido';
+    }
+    $transacao_iniciada = false;
+    try {
+        $conexao->beginTransaction();
+        $transacao_iniciada = true;
+        // Serializa mudanças de perfil pelos administradores ativos, sempre na mesma ordem.
+        $stmt = $conexao->prepare('SELECT id, admin FROM usuarios
+            WHERE admin IS TRUE OR id IN (:autor, :usuario) ORDER BY id FOR UPDATE');
+        $stmt->execute(['autor' => $id_admin, 'usuario' => $id_usuario]);
+        $contas = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        if (($contas[$id_admin] ?? false) !== true) {
+            $conexao->rollBack();
+            $_SESSION['admin'] = false;
+            return 'proibido';
+        }
+        if (!array_key_exists($id_usuario, $contas)) {
+            $conexao->rollBack();
+            return 'inexistente';
+        }
+        if ($administrador === 'false' && $contas[$id_usuario] === true
+            && count(array_filter($contas, static fn($perfil) => $perfil === true)) < 2) {
+            $conexao->rollBack();
+            return 'ultimo_admin';
+        }
+
+        $stmt = $conexao->prepare('UPDATE usuarios SET admin = :admin WHERE id = :id');
+        $stmt->bindValue(':admin', $administrador === 'true', PDO::PARAM_BOOL);
+        $stmt->bindValue(':id', $id_usuario, PDO::PARAM_INT);
+        $stmt->execute();
+        $conexao->commit();
+        if ($id_usuario === $id_admin) {
+            $_SESSION['admin'] = $administrador === 'true';
+        }
+        return 'salvo';
+    } catch (PDOException $erro) {
+        if ($transacao_iniciada && $conexao->inTransaction()) {
+            $conexao->rollBack();
+        }
+        error_log('Erro ao alterar perfil do usuario: ' . $erro->getCode());
+        return 'erro';
+    }
+}
+
 // As duas agregações são independentes: pedidos e carrinho não multiplicam valores entre si.
 // usuarios_selecionados contém somente os IDs da página ou do cliente em consulta.
 const SQL_RESUMO_CLIENTES = <<<'SQL'
@@ -30,6 +83,7 @@ const SQL_RESUMO_CLIENTES = <<<'SQL'
         GROUP BY c.id_usuario
     )
     SELECT u.id, u.nome, u.email, u.admin,
+           (SELECT count(*) FROM usuarios WHERE admin IS TRUE) AS administradores_ativos,
            coalesce(p.total_pedidos, 0) AS total_pedidos,
            coalesce(p.em_aberto, 0) AS em_aberto,
            coalesce(p.concluidos, 0) AS concluidos,

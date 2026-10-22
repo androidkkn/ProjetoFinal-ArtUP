@@ -7,10 +7,10 @@ require_once __DIR__ . '/../login/verifica_admin.php';
 header('Cache-Control: private, no-store');
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
-if (!in_array($_SERVER['REQUEST_METHOD'], ['GET', 'HEAD'], true)) {
-    header('Allow: GET, HEAD');
+if (!in_array($_SERVER['REQUEST_METHOD'], ['GET', 'HEAD', 'POST'], true)) {
+    header('Allow: GET, HEAD, POST');
     http_response_code(405);
-    exit('Esta página permite apenas consultas.');
+    exit('Método não permitido.');
 }
 
 require_once __DIR__ . '/../include/functions.php';
@@ -27,6 +27,15 @@ $pagina_lista = validar_inteiro_positivo($_GET['pagina'] ?? 1);
 $pagina_pedidos = validar_inteiro_positivo($_GET['pagina_pedidos'] ?? 1);
 $id_cliente = array_key_exists('id', $_GET) ? validar_inteiro_positivo($_GET['id']) : null;
 $erro = '';
+$erro_acao = '';
+$mensagem = $_SESSION['mensagem_clientes_admin'] ?? '';
+unset($_SESSION['mensagem_clientes_admin']);
+$_SESSION['csrf_clientes_admin'] ??= bin2hex(random_bytes(32));
+$contexto_lista = ['pesquisa' => $pesquisa, 'pagina' => $pagina_lista ?: 1];
+$contexto_retorno = $contexto_lista;
+if ($id_cliente !== null && $id_cliente !== false) {
+    $contexto_retorno += ['id' => $id_cliente, 'pagina_pedidos' => $pagina_pedidos ?: 1];
+}
 $dados = false;
 if (!is_string($_GET['pesquisa'] ?? '') || str_contains($pesquisa, "\0")
     || preg_match('/\A.{0,255}\z/us', $pesquisa) !== 1
@@ -34,6 +43,40 @@ if (!is_string($_GET['pesquisa'] ?? '') || str_contains($pesquisa, "\0")
     http_response_code(422);
     $erro = 'Confira a busca (até 255 caracteres), o ID do usuário e os números de página.';
 } else {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $token = $_POST['csrf_token'] ?? null;
+        if (!is_string($token) || !hash_equals($_SESSION['csrf_clientes_admin'], $token)) {
+            http_response_code(403);
+            $erro_acao = 'Recarregue a página e tente salvar novamente.';
+        } elseif (($_POST['acao'] ?? null) !== 'alterar_perfil') {
+            http_response_code(422);
+            $erro_acao = 'Ação inválida.';
+        } else {
+            $resultado = alterar_perfil_cliente_admin($conexao, $_POST['id_usuario'] ?? null, $_POST['admin'] ?? null);
+            if ($resultado === 'salvo') {
+                if (!usuario_e_admin()) {
+                    $_SESSION['mensagem_perfil'] = 'Seu perfil foi atualizado para Cliente.';
+                    header('Location: ' . url_app('index.php'), true, 303);
+                    exit;
+                }
+                $_SESSION['mensagem_clientes_admin'] = 'Perfil do usuário atualizado.';
+                header('Location: ' . url_app('admin/clientes.php') . '?'
+                    . http_build_query($contexto_retorno, '', '&', PHP_QUERY_RFC3986), true, 303);
+                exit;
+            }
+            [$codigo, $erro_acao] = match ($resultado) {
+                'proibido' => [403, 'Seu acesso administrativo não está mais disponível.'],
+                'ultimo_admin' => [422, 'Esta é a única conta administrativa. Promova outra conta antes de alterar este perfil para Cliente.'],
+                'invalido' => [422, 'Selecione um usuário válido e o perfil Cliente ou Administrador.'],
+                'inexistente' => [404, 'Usuário não encontrado.'],
+                default => [500, 'Não foi possível salvar o perfil. Tente novamente em instantes.'],
+            };
+            http_response_code($codigo);
+            if ($resultado === 'proibido') {
+                exit($erro_acao);
+            }
+        }
+    }
     $dados = $id_cliente === null
         ? listar_clientes_admin($conexao, $pesquisa, $pagina_lista)
         : consultar_cliente_admin($conexao, $id_cliente, $pagina_pedidos);
@@ -45,7 +88,6 @@ if (!is_string($_GET['pesquisa'] ?? '') || str_contains($pesquisa, "\0")
         $erro = 'Não foi possível carregar os clientes. Tente novamente em instantes.';
     }
 }
-$contexto_lista = ['pesquisa' => $pesquisa, 'pagina' => $pagina_lista ?: 1];
 $status_classe = ['pendente' => 'status-pendente', 'em producao' => 'status-producao',
     'retirada' => 'status-retirada', 'concluido' => 'status-concluido', 'cancelado' => 'status-cancelado'];
 ?>
@@ -68,7 +110,7 @@ $status_classe = ['pendente' => 'status-pendente', 'em producao' => 'status-prod
                 <p class="sobretitulo">ArtUP / Administração</p>
                 <h1><?= $id_cliente === null ? 'Clientes' : 'Detalhes do cliente' ?></h1>
                 <p class="subtitulo"><?= $id_cliente === null
-                    ? 'Consulte todos os usuários e acompanhe o relacionamento de cada um com a gráfica.'
+                    ? 'Consulte os usuários, altere seus perfis de acesso e acompanhe seus pedidos.'
                     : 'Dados de cadastro, resumo dos valores e histórico de pedidos.' ?></p>
             </div>
             <?php if ($id_cliente !== null): ?>
@@ -87,6 +129,12 @@ $status_classe = ['pendente' => 'status-pendente', 'em producao' => 'status-prod
             </section>
         <?php endif; ?>
 
+        <?php if ($mensagem !== ''): ?>
+            <p class="alerta alerta-sucesso" role="status"><?= $escapar($mensagem) ?></p>
+        <?php endif; ?>
+        <?php if ($erro_acao !== ''): ?>
+            <p class="alerta alerta-erro" role="alert"><?= $escapar($erro_acao) ?></p>
+        <?php endif; ?>
         <?php if ($erro !== ''): ?>
             <p class="alerta alerta-erro" role="alert"><?= $escapar($erro) ?></p>
         <?php elseif ($id_cliente === null): ?>
@@ -110,7 +158,10 @@ $status_classe = ['pendente' => 'status-pendente', 'em producao' => 'status-prod
                                 <tr>
                                     <th scope="row">#<?= $escapar($linha['id']) ?></th>
                                     <td class="cliente-identidade"><strong><?= $escapar($linha['nome']) ?></strong><span><?= $escapar($linha['email']) ?></span></td>
-                                    <td><span class="badge <?= $linha['admin'] === true ? 'status-producao' : 'status-desconhecido' ?>"><?= $linha['admin'] === true ? 'Administrador' : 'Cliente' ?></span></td>
+                                    <td>
+                                        <span class="badge <?= $linha['admin'] === true ? 'status-producao' : 'status-desconhecido' ?>"><?= $linha['admin'] === true ? 'Administrador' : 'Cliente' ?></span>
+                                        <?php $cliente_perfil = $linha; include __DIR__ . '/../include/form_perfil_cliente.php'; ?>
+                                    </td>
                                     <td class="numerico"><?= $numero($linha['total_pedidos']) ?></td>
                                     <td class="numerico"><?= $numero($linha['em_aberto']) ?></td>
                                     <td class="numerico"><?= $escapar(formatar_preco($linha['valor_nao_cancelado'])) ?></td>
@@ -131,6 +182,7 @@ $status_classe = ['pendente' => 'status-pendente', 'em producao' => 'status-prod
                     <div><dt>Perfil</dt><dd><?= $cliente['admin'] === true ? 'Administrador' : 'Cliente' ?></dd></div>
                     <div><dt>Último pedido</dt><dd><?= $escapar($cliente['ultimo_pedido'] ?? 'Sem pedidos') ?></dd></div>
                 </dl>
+                <?php $cliente_perfil = $cliente; include __DIR__ . '/../include/form_perfil_cliente.php'; ?>
             </section>
             <div class="cliente-indicadores" aria-label="Resumo do histórico do cliente">
                 <article><h2>Pedidos registrados</h2><p><?= $numero($cliente['total_pedidos']) ?></p></article>

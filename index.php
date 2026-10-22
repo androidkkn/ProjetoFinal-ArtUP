@@ -16,6 +16,10 @@
 <?php include __DIR__ . '/include/header.php' ?>
 
 <main id="conteudo" tabindex="-1">
+<?php if (isset($_SESSION['mensagem_perfil'])): ?>
+    <p class="container alerta alerta-sucesso" role="status"><?= htmlspecialchars($_SESSION['mensagem_perfil'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
+    <?php unset($_SESSION['mensagem_perfil']); ?>
+<?php endif; ?>
 <section class="hero">
     <div class="hero-conteudo">
         <div>

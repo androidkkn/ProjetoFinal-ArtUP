@@ -130,7 +130,7 @@ Execute `php database/migrar_cancelamentos.php` para criar a tabela de históric
 
 <a id="clientes"></a>
 
-## Consulta administrativa de clientes
+## Gestão administrativa de clientes
 
 A opção **Administração → Clientes** abre [admin/clientes.php](../admin/clientes.php). A tela lista todos os usuários cadastrados, incluindo administradores e contas sem pedidos. Não exibe senhas nem hashes. Os dados de cadastro existentes são ID, nome, e-mail e perfil; telefone, endereço e data de cadastro não fazem parte das colunas utilizadas pelo projeto.
 
@@ -143,6 +143,14 @@ A opção **Administração → Clientes** abre [admin/clientes.php](../admin/cl
 - Cada linha mostra perfil, quantidade de pedidos, pedidos em aberto, valor não cancelado e último pedido. **Ver detalhes** abre o histórico do usuário.
 
 Exemplos: `admin/clientes.php?pesquisa=ana`, `admin/clientes.php?pagina=2` e `admin/clientes.php?id=1`.
+
+### Alteração do perfil de acesso
+
+Na listagem e na ficha do usuário, o administrador escolhe **Cliente** (`admin=false`) ou **Administrador** (`admin=true`) e clica em **Salvar perfil**. O seletor aparece em todas as contas, inclusive na própria. A alteração preserva nome, e-mail, senha e pedidos. Após salvar o perfil de outra conta, a página mantém a busca e a paginação e mostra uma mensagem de confirmação.
+
+O administrador pode mudar o próprio perfil para Cliente quando houver outro administrador. Ao fazer isso, a sessão perde o acesso administrativo imediatamente e retorna à página inicial com uma confirmação. A última conta administrativa não pode ser rebaixada: a opção Cliente fica desabilitada e a tela orienta a promover outra conta primeiro. Essa regra também é verificada no servidor. O salvamento usa POST com token CSRF da sessão e aceita somente os valores `true` e `false`. IDs ou perfis inválidos e tentativas de rebaixar o último administrador retornam HTTP 422, usuários inexistentes retornam 404 e envios sem autorização ou token válido retornam 403.
+
+O perfil de quem faz a alteração é conferido novamente no banco durante uma transação curta. Os administradores ativos e as contas envolvidas são bloqueados por ID em ordem crescente, preservando pelo menos um administrador mesmo em alterações simultâneas. A cada requisição autenticada, o perfil é relido do banco: promoções e remoções de acesso por outro administrador valem na próxima requisição, sem exigir novo login. Se a conta tiver sido excluída, a sessão perde a autenticação.
 
 ### Detalhes do usuário
 
@@ -168,21 +176,19 @@ Os valores representam pedidos, não pagamentos recebidos. A aplicação não re
 
 ### Acesso e implementação
 
-A guarda administrativa é executada antes de abrir a conexão. Visitantes são redirecionados ao login; clientes e papéis administrativos sem o booleano `true` recebem HTTP 403. As funções em [include/clientes.php](../include/clientes.php) também verificam autorização. A página é somente de consulta, aceita GET/HEAD e recusa outros métodos com HTTP 405. Ela não permite editar contas ou suas permissões.
+A guarda de autenticação redireciona visitantes ao login antes de consultar o perfil. Para contas autenticadas, o perfil é atualizado pelo banco antes de verificar o acesso administrativo; clientes recebem HTTP 403. Se não for possível verificar o perfil, a requisição é interrompida com HTTP 500. As funções em [include/clientes.php](../include/clientes.php) também verificam autorização. A página aceita GET/HEAD para consultas e POST para alterar o perfil; outros métodos recebem HTTP 405.
 
 As respostas administrativas usam `Cache-Control: private, no-store`, `X-Content-Type-Options: nosniff` e `X-Frame-Options: DENY`. As saídas dinâmicas são escapadas, inclusive nome, e-mail, pesquisa, categoria, nome da arte e status desconhecidos.
 
-Não há migração nova: a funcionalidade usa as tabelas existentes de usuários, produtos, pedidos, carrinho, artes e solicitações de cancelamento. Cada modo utiliza duas consultas, sem consulta por usuário/pedido dentro de laços PHP. A seleção das contas é limitada antes das agregações; pedidos e carrinho são agregados separadamente para evitar multiplicação de valores. Valores monetários permanecem como `NUMERIC` no banco e texto no PHP.
+Não há migração nova: a funcionalidade usa as tabelas existentes de usuários, produtos, pedidos, carrinho, artes e solicitações de cancelamento. Além da consulta de perfil da sessão, cada modo de leitura utiliza duas consultas, sem consulta por usuário/pedido dentro de laços PHP. A seleção das contas é limitada antes das agregações; pedidos e carrinho são agregados separadamente para evitar multiplicação de valores. Valores monetários permanecem como `NUMERIC` no banco e texto no PHP.
 
 A paginação numerada usa LIMIT/OFFSET com ordenação estável. Para históricos muito profundos, avaliar paginação por cursor e índices com planos reais, conforme o volume; esta entrega não cria índices nem altera a estrutura persistente.
 
 ### Verificação
 
-- **40 verificações de integração aprovadas** no PostgreSQL, exclusivamente em tabelas temporárias sob `search_path=pg_temp` e transação revertida. Cobrem contas sem pedidos, administradores, precisão decimal, cancelados, valores nulos, carrinhos e históricos sem duplicação, busca literal, Unicode, tentativa de injeção, paginação e autorização.
-- **55 verificações HTTP/navegador aprovadas**, com o mesmo isolamento: listagem e detalhes em 320/390/768/1440 px; estados vazios; HTML e links; páginas inválidas/inexistentes; erros de consulta; acesso indevido; somente leitura; cabeçalhos privados; escape de dados maliciosos; navegação entre páginas e instalação em subpasta.
-- **32 arquivos PHP aprovados no lint.** Capturas de listagem em desktop e detalhes no celular foram inspecionadas.
+A alteração de perfis passou em **79 verificações de integração e HTTP**: promoção e rebaixamento, persistência dos booleanos, seletor visível na própria conta, alteração do próprio perfil, proteção do último administrador inclusive com dois processos simultâneos, entradas inválidas, usuário inexistente, CSRF, acesso indevido, métodos HTTP, escape de nomes, mensagens, preservação da busca/paginação e atualização de sessões já abertas nas páginas administrativas. Os arquivos PHP alterados passaram no lint.
 
-Nenhum dado persistente de cliente, pedido ou arte foi alterado pelos testes. As ferramentas temporárias ficaram fora do repositório; a suíte anteriormente removida não foi recriada. Os riscos de sessão/revogação já registrados na auditoria continuam sendo questões comuns da aplicação.
+Os testes usaram somente contas e tabelas de um schema isolado, removido ao terminar; não alteraram clientes, pedidos ou artes da instalação. As ferramentas locais de verificação permanecem ignoradas pelo Git. A entrega inicial da consulta também registrou 40 verificações de integração e 55 de HTTP/navegador; esses números são históricos e anteriores à edição de perfis.
 
 <a id="estatisticas"></a>
 
