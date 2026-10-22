@@ -15,7 +15,7 @@ O projeto usa **PHP procedural, HTML/CSS e PostgreSQL via PDO**, com páginas re
 
 Administradores também podem editar tarifas e itens, mudar status, aprovar/recusar cancelamentos, excluir pedidos e consultar o painel por período. Os status são Pendente (`pendente`), Em produção (`em producao`), Retirada (`retirada`), Entregue (`concluido`) e Cancelado (`cancelado`). A chave `concluido` foi preservada por compatibilidade com os pedidos existentes.
 
-Em **Administração → Clientes**, o administrador consulta todos os usuários, busca por nome/e-mail/ID e abre o resumo de valores e o histórico paginado de cada conta. Veja [clientes](docs/funcionalidades.md#clientes).
+Em **Administração → Clientes**, o administrador consulta todos os usuários, busca por nome/e-mail/ID, altera o perfil entre Cliente e Administrador e abre o resumo de valores e o histórico paginado de cada conta. O seletor aparece em todas as contas, inclusive na própria; pelo menos uma conta administrativa deve ser mantida. Veja [clientes](docs/funcionalidades.md#clientes).
 
 O painel mostra valores de pedidos, **não pagamentos recebidos ou lucro**. Não existem fluxos implementados de pagamento, envio de notificações ou recuperação de senha.
 
@@ -43,115 +43,49 @@ Com acesso ao repositório:
 
 ```sh
 git clone https://github.com/androidkkn/ProjetoFinal-ArtUP.git
-cd ProjetoFinal-ArtUP
-php -v
-php -m
-php --ini
+
 ```
 
-Os comandos pressupõem `php` no `PATH`. No Windows, também é possível usar o caminho completo para `php.exe`. Confira as extensões e o `php.ini` carregado; o PHP do servidor web pode usar configuração diferente da CLI.
+### 2. Configure o banco
 
-### 2. Crie um banco vazio e importe o dump
+- O dump `database/dump_banco.sql` contém a estrutura completa e dados de demonstração. Ele deve ser restaurado em um banco PostgreSQL vazio.
 
-O arquivo [database/dump_banco.sql](database/dump_banco.sql) é um dump **SQL em texto**, gerado com PostgreSQL/pg_dump **18.6**. Ele inclui as nove tabelas, dados iniciais, sequências, índices e chaves estrangeiras, inclusive artes e cancelamentos. Use PostgreSQL 18.x e o cliente `psql` 18.x para seguir este tutorial.
-
-Confira as ferramentas do PostgreSQL:
+1. Então primeiramente vamos criar um banco de dados e um usuário para a aplicação. No terminal, execute:
 
 ```sh
-psql --version
-createuser --version
-createdb --version
+psql -U postgres
 ```
 
-Se os comandos não forem encontrados no Windows, adicione a pasta `bin` da sua instalação ao `PATH`. Exemplo para a instalação padrão da versão 18, na sessão atual do PowerShell:
+2. No prompt do PostgreSQL, crie o banco de dados e o usuário:
 
-```powershell
-$env:Path = 'C:\Program Files\PostgreSQL\18\bin;' + $env:Path
+```sql
+CREATE USER nome_do_usuario WITH PASSWORD 'senha_segura';
+CREATE DATABASE nome_do_banco OWNER nome_do_usuario;
 ```
+- Prontinho agora é so fazermos o dump do banco
 
-Crie uma conta de banco chamada `artup`; `--pwprompt` solicita a senha que você usará no arquivo de configuração. Os comandos abaixo pressupõem uma instalação local na porta 5432 e a conta administrativa do PostgreSQL chamada `postgres`. Ajuste esses valores conforme sua instalação.
+3. Saia do prompt do PostgreSQL com `\q` e, na raiz do repositório, execute o seguinte comando para restaurar o dump:
 
 ```sh
-createuser -h 127.0.0.1 -p 5432 -U postgres --pwprompt artup
-createdb -h 127.0.0.1 -p 5432 -U postgres --owner=artup artup
+psql -U nome_do_usuario -d nome_do_banco -f database/dump_banco.sql
 ```
 
-Na raiz do repositório, importe o dump no banco recém-criado:
+- Agora temos o banco de dados configurado e pronto para ser usado pela aplicação.
 
-```sh
-psql -h 127.0.0.1 -p 5432 -U artup -d artup --set=ON_ERROR_STOP=1 --single-transaction --file=database/dump_banco.sql
-```
+### Configuração `database/credenciais.php`
 
-Use a senha definida no `createuser`. O dump não exige a conta proprietária do banco de origem: as instruções de troca de proprietário foram removidas para que os objetos pertençam ao usuário que executa a importação.
-
-Importe em **banco vazio**. O arquivo cria tabelas e carrega dados; não é uma atualização idempotente. `ON_ERROR_STOP` interrompe ao primeiro erro, e `--single-transaction` reverte a importação inteira nesse caso. O dump é SQL com `COPY` e comandos próprios do `psql`, como `\restrict`; use `psql`, não `pg_restore` nem o editor de consultas do pgAdmin.
-
-Se a conta `artup` já existir, reutilize-a com sua senha. Se o banco `artup` já contiver dados, crie outro banco vazio e ajuste `-d` e `$nomeDB`; não repita a importação sobre a instalação existente.
-
-O dump atual contém:
-
-| Conteúdo | Quantidade |
-| --- | --- |
-| Categorias | 4 |
-| Tipos de produto | 11 |
-| Tarifas por categoria | 4 |
-| Produtos existentes | 18 |
-| Conta administrativa demonstrativa | 1 |
-| Pedidos, carrinho, artes e solicitações de cancelamento | 0 |
-
-Os 18 produtos são registros do snapshot e não representam pedidos confirmados. As categorias usam IDs fixos: **1 = adesivos, 2 = papelaria, 3 = placas e 4 = banners**. Não execute novamente os INSERTs de exemplo do guia do banco após restaurar o dump.
-
-Os [diagramas do banco](docs/banco-de-dados.md#modelo-de-dados) detalham as tabelas e os relacionamentos. Medidas persistidas em `produto` continuam em metros; a interface usa centímetros.
-
-### 3. Configure as credenciais
-
-Crie `database/credenciais.php`, já ignorado pelo Git. Use o mesmo banco, usuário e senha dos comandos anteriores. O formato corresponde às variáveis lidas por [database/connect.php](database/connect.php):
+- Crie `database/credenciais.php` com as credenciais do banco. Exemplo:
 
 ```php
 <?php
-$ip = '127.0.0.1';
-$nomeDB = 'artup';
-$nomeUSR = 'artup';
-$senha = 'senha_definida_no_createuser';
+$ip = 'IP_DO_SERVIDOR';
+$nomeDB = 'NOME_DO_BANCO';
+$nomeUSR = 'NOME_DO_USUARIO';
+$senha = 'SUA_SENHA';
+?>
 ```
 
-A conexão monta o DSN `pgsql:host=...;dbname=...` e habilita `PDO::ERRMODE_EXCEPTION`. O arquivo atual não oferece campos próprios para porta ou modo SSL.
-
-**Não existe carregamento de `.env`, `$_ENV` ou `getenv()` na aplicação.** Definir `DB_HOST`, `DATABASE_URL` ou `APP_ENV` no terminal não configura este código. A conexão depende do arquivo PHP acima; limites e opções de sessão dependem do `php.ini`/servidor. Não versione credenciais nem copie seus valores para logs ou documentação.
-
-### 4. Confira a restauração
-
-Verifique as tabelas e os dados iniciais:
-
-```sh
-psql -h 127.0.0.1 -p 5432 -U artup -d artup --command="\dt public.*"
-psql -h 127.0.0.1 -p 5432 -U artup -d artup --command="SELECT (SELECT COUNT(*) FROM categorias) AS categorias, (SELECT COUNT(*) FROM tipos_de_produto) AS tipos, (SELECT COUNT(*) FROM usuarios WHERE admin = TRUE) AS administradores;"
-```
-
-Após importar o dump fornecido, são esperadas nove tabelas e as contagens `4`, `11` e `1`, respectivamente.
-
-**O dump já inclui as migrações 001 e 002.** Não é necessário executá-las para instalar esta versão a partir dele. Os scripts abaixo permanecem disponíveis para bancos anteriores que já tenham as tabelas base e precisem receber/verificar as estruturas adicionais:
-
-```sh
-php database/migrar_artes.php
-php database/migrar_cancelamentos.php
-```
-
-Eles aceitam somente CLI; acesso HTTP retorna 404. As mensagens de sucesso são `Estrutura de artes criada/verificada com sucesso.` e `Estrutura de solicitações de cancelamento criada/verificada com sucesso.` As migrações são aditivas e não substituem a importação inicial do dump.
-
-### 5. Confira upload e sessão
-
-O teto de arte é 10 MiB (`10 * 1024 * 1024` bytes), reduzido pelos limites do PHP. Para disponibilizar esse teto, uma configuração possível, coerente com o código, é:
-
-```ini
-file_uploads = On
-upload_max_filesize = 10M
-post_max_size = 12M
-```
-
-O cálculo reserva 65.536 bytes de `post_max_size` para os demais campos. O limite efetivo aparece no formulário; ele não é fixo para todas as instalações. `memory_limit` também influencia a aceitação de imagens, que têm teto de 40 megapixels.
-
-As artes dos clientes ficam como `BYTEA` **no banco**, não em `/img`. Essa pasta contém assets da interface. Inclua `artes` nos backups. O código usa a configuração de cookies e armazenamento de sessão do PHP; não há bootstrap comum que configure todas essas opções.
+- Agora o banco esta configurado e pronto para ser usado pela aplicação.
 
 ## Execução local
 
@@ -161,10 +95,7 @@ Na raiz do repositório:
 php -S 127.0.0.1:8000 -t .
 ```
 
-Abra `http://127.0.0.1:8000/login/login.php`. O cadastro está em `/login/cadastrar.php`. A página inicial exige autenticação. Encerre com `Ctrl+C`.
-
-Esse comando é para desenvolvimento local em loopback. A raiz contém `.git`, documentação e arquivos internos; não há configuração de implantação pública versionada. Não exponha esse servidor como instalação de produção. Os requisitos de publicação abertos estão na [auditoria](docs/auditoria.md) e no [backlog](docs/product-backlog.md).
-
+Abra `http://127.0.0.1:8000`. e Faça o login com a conta de demonstração ou cadastre uma nova conta.
 ### Acesso administrativo de demonstração
 
 Após restaurar o dump, entre com a conta incluída:
@@ -174,7 +105,7 @@ Após restaurar o dump, entre com a conta incluída:
 | E-mail | `adminzudo@admininstrador.com` |
 | Senha | `temqpagarprasaberasenha` |
 
-Essas credenciais são públicas e destinadas à demonstração local. A senha dessa conta está em texto puro no dump; não reutilize essa conta em uma instalação pública. O cadastro de novas contas continua usando hash Argon2id e criando clientes (`admin=false`). Não há tela de promoção de usuários; o papel administrativo é copiado para a sessão no login.
+Essas credenciais são públicas e destinadas à demonstração local. O cadastro de novas contas continua criando clientes (`admin=false`). Administradores podem promover ou rebaixar contas em **Administração → Clientes**, usando **Perfil de acesso → Salvar perfil**. O perfil é atualizado na sessão a cada requisição autenticada, inclusive para contas que já estavam conectadas. A própria conta pode virar Cliente quando houver outro administrador; nesse caso, a sessão é atualizada imediatamente e retorna à página inicial. A única conta administrativa não pode ser rebaixada: cadastre e promova outra conta antes.
 
 ## Exemplos de uso e contratos atuais
 
