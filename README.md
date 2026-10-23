@@ -188,6 +188,117 @@ Visão dos protótipos e fluxos de navegação: páginas do administrador à esq
 
 Para visualizar os detalhes com mais clareza e usar o zoom, [abra o protótipo no Excalidraw](https://excalidraw.com/#json=TDRikhzoSEstlcQvKaUo1,457WKIKckyh_fpMpH3FVFQ).
 
+## Diagrama DER do banco
+
+Modelo das **9 tabelas, 50 campos e 13 relacionamentos**, conferido com a estrutura de [database/dump_banco.sql](database/dump_banco.sql). O diagrama mostra tipos, chaves, nulabilidade e valores padrão existentes. Para consultar o modelo dividido por assunto e as regras completas de integridade, veja o [guia do banco de dados](docs/banco-de-dados.md#modelo-de-dados).
+
+```mermaid
+erDiagram
+    direction TB
+    categorias ||..o{ tipos_de_produto : "agrupa"
+    categorias ||..o| precodimensoes : "possui"
+    categorias ||..o{ produto : "agrupa"
+    tipos_de_produto o|..o{ produto : "classifica"
+    usuarios ||..o{ carrinho : "possui"
+    usuarios ||..o{ pedido : "faz"
+    produto ||..o| carrinho : "compõe"
+    produto ||..o{ pedido : "compõe"
+    pedido o|..o{ carrinho : "é referenciado por"
+    usuarios ||..o{ artes : "envia"
+    produto o|..o| artes : "possui"
+    pedido ||..o{ solicitacoes_cancelamento : "recebe"
+    usuarios o|..o{ solicitacoes_cancelamento : "analisa"
+
+    categorias {
+        INT id PK "NOT NULL; IDENTITY"
+        VARCHAR nome "255; NOT NULL"
+    }
+    tipos_de_produto {
+        INT id PK "NOT NULL; IDENTITY"
+        INT id_categoria FK "NOT NULL"
+        VARCHAR nome "255; NOT NULL"
+        NUMERIC valor_base "12,2; NOT NULL"
+    }
+    precodimensoes {
+        INT id PK "NOT NULL; IDENTITY"
+        INT id_categoria FK, UK "NOT NULL"
+        NUMERIC valormetro "12,2; NULL; tarifa por m2"
+    }
+    produto {
+        INT id PK "NOT NULL; IDENTITY"
+        INT id_categoria FK "NOT NULL"
+        INT quantidade "NOT NULL"
+        REAL largura "NULL; metros"
+        REAL comprimento "NULL; metros"
+        VARCHAR tamanho "50; NULL"
+        VARCHAR grossura "3; NULL"
+        INT id_tipo FK "NULL"
+    }
+    usuarios {
+        INT id PK "NOT NULL; IDENTITY"
+        VARCHAR nome "255; NOT NULL"
+        VARCHAR email "255; NOT NULL"
+        VARCHAR senha "255; NOT NULL"
+        BOOLEAN admin "NOT NULL"
+    }
+    carrinho {
+        INT id PK "NOT NULL; IDENTITY"
+        INT id_usuario FK "NOT NULL"
+        INT id_pedido FK "NULL; referencia legada"
+        INT id_produto FK, UK "NOT NULL"
+        NUMERIC preco_unitario "12,2; NULL"
+        NUMERIC valor_total "12,2; NULL"
+    }
+    pedido {
+        INT id PK "NOT NULL; IDENTITY"
+        INT id_usuario FK "NOT NULL"
+        INT id_produto FK "NOT NULL"
+        TIMESTAMP data "NOT NULL"
+        VARCHAR status "50; NOT NULL"
+        NUMERIC preco_unitario "12,2; NULL"
+        NUMERIC valor_total "12,2; NULL"
+    }
+    artes {
+        INT id PK "NOT NULL; IDENTITY"
+        INT id_usuario FK "NOT NULL"
+        INT id_produto FK, UK "NULL"
+        VARCHAR nome_original "255; NOT NULL"
+        VARCHAR mime "32; NOT NULL"
+        INT tamanho "NOT NULL; bytes"
+        BYTEA conteudo "NOT NULL"
+        TIMESTAMPTZ criado_em "NOT NULL; default CURRENT_TIMESTAMP"
+    }
+    solicitacoes_cancelamento {
+        INT id PK "NOT NULL; IDENTITY"
+        INT id_pedido FK "NOT NULL"
+        VARCHAR motivo "1000; NOT NULL; default ''"
+        VARCHAR status "12; NOT NULL; default 'pendente'"
+        TIMESTAMPTZ solicitado_em "NOT NULL; default CURRENT_TIMESTAMP"
+        TIMESTAMPTZ respondido_em "NULL"
+        INT id_administrador FK "NULL"
+    }
+```
+
+### Como ler o DER
+
+| Notação | Significado |
+| --- | --- |
+| `PK` / `FK` / `UK` | Chave primária / chave estrangeira / coluna com restrição de unicidade. |
+| `||` / `o|` / `o{` | Exatamente um / zero ou um / zero ou muitos. |
+| Linha pontilhada | A chave estrangeira não faz parte da chave primária da tabela dependente. |
+| `NOT NULL` / `NULL` | Campo obrigatório / campo que aceita valor nulo. |
+| `IDENTITY` | ID inteiro gerado pelo PostgreSQL. |
+| `VARCHAR` / `NUMERIC` | O comentário informa o limite de caracteres ou a precisão e escala; `12,2` corresponde a `NUMERIC(12,2)`. |
+| `TIMESTAMP` / `TIMESTAMPTZ` | Data e hora sem fuso / com fuso. |
+
+### Regras importantes do modelo
+
+- **Catálogo e medidas:** uma categoria tem no máximo uma tarifa por m². O tipo do produto é opcional. Largura e comprimento ficam em metros no banco; a interface recebe e exibe centímetros.
+- **Carrinho e pedidos:** cada produto pode aparecer em no máximo uma linha de carrinho, mas pode ser referenciado por vários pedidos. `carrinho.id_pedido` é uma referência legada opcional; ao excluir o pedido, ela fica nula (`ON DELETE SET NULL`).
+- **Artes:** uma arte pertence a um usuário e pode ficar sem produto enquanto é rascunho. Um produto tem no máximo uma arte. O arquivo fica em `BYTEA`; excluir o produto remove sua arte (`ON DELETE CASCADE`).
+- **Cancelamentos:** um pedido pode ter várias solicitações, mas um índice único parcial permite somente uma pendente por vez. O cliente é identificado por `pedido.id_usuario`; `id_administrador` identifica quem respondeu. Excluir o pedido remove suas solicitações (`ON DELETE CASCADE`).
+- **Validações:** preços de carrinho e pedido aceitam nulo ou valor não negativo. Solicitações aceitam `pendente`, `aprovado` ou `recusado`; após resposta, data e administrador são obrigatórios. A enumeração dos status do pedido é validada no PHP. O banco não impõe unicidade ao e-mail.
+
 ## Documentação complementar
 
 Veja o [índice de documentação](docs/README.md), com os guias de [funções PHP](docs/funcoes.md), [funcionalidades](docs/funcionalidades.md), [banco de dados](docs/banco-de-dados.md) e [product backlog](docs/product-backlog.md).
