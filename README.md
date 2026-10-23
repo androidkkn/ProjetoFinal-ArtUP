@@ -171,13 +171,22 @@ ProjetoFinal-ArtUP/
 │   ├── connect.php              Cria PDO e trata falha de conexão
 │   └── credenciais.php          Configuração local, não versionada
 ├── docs/                        Guias de funções, funcionalidades, banco e backlog
-├── img/                         Logotipo e imagens genéricas provisórias
+├── img/                         Logotipo, imagens genéricas provisórias e protótipos
+│   └── prototipo/               Imagem dos fluxos do administrador e do cliente
 └── Estilizacoes/                Contexto e referências de design; não participa da execução PHP
 ```
 
 As páginas combinam guarda de sessão, funções com PDO e renderização HTML/redirecionamento. A ordem exata varia: não reordene includes indiscriminadamente. `functions.php` reutiliza `$conexao` quando já é uma instância de PDO; `functions_core.php` pode ser incluído isoladamente em verificações sem banco.
 
 As imagens de produtos e o design system unificado em `css/estilo.css` estão integrados aos templates (`index.php`, catálogo, serviços, carrinho, pedidos e telas administrativas), estendendo o padrão visual e de acessibilidade do painel de estatísticas para toda a aplicação.
+
+## Protótipos das telas
+
+Visão dos protótipos e fluxos de navegação: páginas do administrador à esquerda e páginas do cliente à direita.
+
+![Protótipos das telas do administrador e do cliente, com as conexões entre as páginas](img/prototipo/prototipo.png)
+
+Para visualizar os detalhes com mais clareza e usar o zoom, [abra o protótipo no Excalidraw](https://excalidraw.com/#json=TDRikhzoSEstlcQvKaUo1,457WKIKckyh_fpMpH3FVFQ).
 
 ## Documentação complementar
 
