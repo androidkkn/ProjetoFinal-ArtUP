@@ -6,7 +6,7 @@ O [README principal](../README.md) concentra requisitos, instalação, configura
 | --- | --- |
 | [Funcionalidades](funcionalidades.md) | Navegação, preços, artes, status/cancelamentos/exclusão de pedidos, consulta de clientes e estatísticas. |
 | [Banco de dados](banco-de-dados.md) | Três diagramas PostgreSQL: catálogo/preços, clientes/pedidos e artes/cancelamentos; campos, cardinalidades e regras de exclusão. |
-| [Auditoria histórica](auditoria.md) | Achados originais de segurança, qualidade e desempenho, com recomendações e limites. |
+| [Funções PHP](funcoes.md) | Resumo das 42 funções nomeadas, organizado por arquivo, e dos principais arquivos de entrada. |
 | [Product backlog](product-backlog.md) | Entregas, pendências, prioridades e critérios de aceitação. |
 
 ## Atalhos das funcionalidades

@@ -151,7 +151,7 @@ ProjetoFinal-ArtUP/
 │   ├── dump_banco.sql           Estrutura completa e dados de demonstração
 │   ├── connect.php              Cria PDO e trata falha de conexão
 │   └── credenciais.php          Configuração local, não versionada
-├── docs/                        Guias, auditoria, diagrama e backlog
+├── docs/                        Guias de funções, funcionalidades, banco e backlog
 ├── img/                         Logotipo e imagens genéricas provisórias
 └── Estilizacoes/                Contexto e referências de design; não participa da execução PHP
 ```
@@ -162,4 +162,4 @@ As imagens de produtos e o design system unificado em `css/estilo.css` estão in
 
 ## Documentação complementar
 
-Veja o [índice de documentação](docs/README.md), com os guias consolidados de [funcionalidades](docs/funcionalidades.md), [banco de dados](docs/banco-de-dados.md), [auditoria histórica](docs/auditoria.md), [product backlog](docs/product-backlog.md).
+Veja o [índice de documentação](docs/README.md), com os guias de [funções PHP](docs/funcoes.md), [funcionalidades](docs/funcionalidades.md), [banco de dados](docs/banco-de-dados.md) e [product backlog](docs/product-backlog.md).

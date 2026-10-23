@@ -3,9 +3,11 @@
 Atualizado em 21/10/2026. Objetivo do produto: permitir que clientes solicitem produtos gráficos com
 preço e arte definidos e que a gráfica acompanhe produção, cancelamentos e indicadores de pedidos.
 
-Este backlog combina o estado do repositório, os achados da [auditoria](auditoria.md) e as evoluções
-propostas para o produto. Não representa aprovação de segurança para produção nem compromisso de prazo.
+Este backlog reúne as entregas, pendências técnicas e evoluções propostas para o produto.
+Não representa aprovação de segurança para produção nem compromisso de prazo.
 As estimativas são relativas: **P** pequena, **M** média, **G** grande. Responsáveis e datas ficam a definir.
+
+Referências como S01, B01, Q01 e P01 preservam a classificação histórica dos achados; o trabalho esperado está descrito nos critérios de cada item. O [guia de funções](funcoes.md) explica a organização atual do código.
 
 ## Convenções
 

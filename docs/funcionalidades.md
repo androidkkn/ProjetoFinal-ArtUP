@@ -260,8 +260,8 @@ o status de produção é preservado. Pedidos excluídos definitivamente deixam 
 de eventos/histórico analítico não há como continuar contando registros removidos.
 
 Erros de consulta retornam HTTP 500 com mensagem genérica. Detalhes da exceção não são exibidos ao
-administrador; o log registra o código. Os demais achados de sessão/autorização da auditoria continuam
-no [product backlog](product-backlog.md), incluindo a revogação de papel em sessões existentes.
+administrador; o log registra o código. O [product backlog](product-backlog.md) acompanha as melhorias
+de sessão e autorização. O perfil de acesso atual é revalidado no banco a cada requisição autenticada.
 
 ### Implementação e banco
 
