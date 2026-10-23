@@ -31,29 +31,6 @@ Para reproduzir o ambiente verificado no projeto, use **PHP 8.5.x** e **PostgreS
 | Git | Clonar o repositório seguindo o tutorial. |
 | Navegador com suporte a HTML5 e CSS Grid/Flexbox | Usar as páginas, formulários e layouts da aplicação. |
 
-Utilize uma [versão do PHP com suporte oficial](https://www.php.net/supported-versions.php). Confira as ferramentas e extensões no terminal:
-
-```sh
-php -v
-php -m
-php --ini
-psql --version
-```
-
-As extensões devem estar habilitadas no PHP que atende às páginas. Se houver uma instalação separada para o servidor web, confira também o `php.ini` usado por ela.
-
-Para permitir artes de até **10 MiB**, configure o `php.ini` e reinicie o servidor PHP:
-
-```ini
-file_uploads = On
-upload_max_filesize = 10M
-post_max_size = 12M
-```
-
-O formulário aplica o menor limite entre a aplicação e a configuração do PHP, reservando espaço no POST para os demais campos. `memory_limit` também influencia a validação de imagens, que possuem limite de 40 megapixels; valores menores podem exigir arquivos menores.
-
-O projeto não possui dependências de execução gerenciadas por Composer ou npm. Node.js, Superdesign e imagegen foram usados como ferramentas de desenvolvimento e não são necessários para executar a aplicação.
-
 ## Instalação e configuração
 
 ### 1. Obtenha o código e confira o PHP
