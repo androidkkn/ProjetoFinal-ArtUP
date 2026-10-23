@@ -98,7 +98,7 @@ Os arquivos são enviados como anexos, com tipo MIME validado, `nosniff` e cache
 
 ### Instalação
 
-Execute `php database/migrar_artes.php` para criar a tabela e seu índice. A migração é aditiva e pode ser executada novamente; não altera os produtos ou pedidos existentes.
+A tabela de artes e seu índice já estão no [dump SQL](../database/dump_banco.sql). Para uma instalação nova, importe o dump em banco vazio conforme o [README](../README.md#instalação-e-configuração).
 
 <a id="pedidos"></a>
 
@@ -126,7 +126,7 @@ Todas as alterações usam POST com token da sessão. A identidade do cliente e 
 
 ### Banco
 
-Execute `php database/migrar_cancelamentos.php` para criar a tabela de histórico e os índices e ajustar a referência legada do carrinho para `ON DELETE SET NULL`. A migração pode ser executada novamente e não exclui pedidos existentes.
+O [dump SQL](../database/dump_banco.sql) já inclui o histórico de cancelamentos, seus índices e a referência legada `carrinho.id_pedido` com `ON DELETE SET NULL`. A instalação usa o dump; os scripts antigos de migração foram removidos.
 
 <a id="clientes"></a>
 
@@ -275,7 +275,7 @@ consultas dentro dos loops de apresentação ou carregar os pedidos completos no
 permanecem como `NUMERIC` no PostgreSQL e texto no retorno JSON, preservando os centavos sem conversão em float.
 
 Não há migração nova nem alterações dos dados existentes. São necessárias as tabelas base e a tabela de
-solicitações da [migração de cancelamentos](../database/migrations/002_cancelamentos.sql). Índices adicionais
+solicitações de cancelamento, incluída no [dump SQL](../database/dump_banco.sql). Índices adicionais
 para crescimento do volume estão previstos no backlog; o filtro de datas não aplica funções a `pedido.data`,
 permitindo aproveitar um índice adequado quando ele for criado.
 

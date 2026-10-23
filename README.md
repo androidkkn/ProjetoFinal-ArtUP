@@ -182,10 +182,7 @@ ProjetoFinal-ArtUP/
 ├── database/
 │   ├── dump_banco.sql           Estrutura completa e dados de demonstração
 │   ├── connect.php              Cria PDO e trata falha de conexão
-│   ├── credenciais.php          Configuração local, não versionada
-│   ├── migrar_artes.php         Entrada CLI da migração 001
-│   ├── migrar_cancelamentos.php Entrada CLI da migração 002
-│   └── migrations/              Migrações adicionais já incorporadas ao dump
+│   └── credenciais.php          Configuração local, não versionada
 ├── docs/                        Guias, auditoria, diagrama e backlog
 ├── img/                         Logotipo e imagens genéricas provisórias
 └── Estilizacoes/                Contexto e referências de design; não participa da execução PHP
@@ -241,4 +238,4 @@ Não foram encontrados licença, política formal de contribuição, automação
 
 ## Documentação complementar
 
-Veja o [índice de documentação](docs/README.md), com os guias consolidados de [funcionalidades](docs/funcionalidades.md), [banco de dados](docs/banco-de-dados.md), [auditoria histórica](docs/auditoria.md), [product backlog](docs/product-backlog.md) e [histórico de revisões](docs/revisoes.md).
+Veja o [índice de documentação](docs/README.md), com os guias consolidados de [funcionalidades](docs/funcionalidades.md), [banco de dados](docs/banco-de-dados.md), [auditoria histórica](docs/auditoria.md), [product backlog](docs/product-backlog.md).

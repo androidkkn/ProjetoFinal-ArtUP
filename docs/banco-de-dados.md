@@ -1,8 +1,8 @@
 # Banco de dados do ArtUP
 
-Diagramas conferidos em **21/10/2026** com as consultas da aplicação, as [migrações versionadas](../database/migrations/) e o catálogo do banco PostgreSQL local. A consulta ao catálogo foi executada em transação somente de leitura, sem consultar dados pessoais nem alterar tabelas. O modelo confirmado contém **9 tabelas, 50 colunas e 13 chaves estrangeiras**; não comprova o estado de outra instalação.
+Diagramas conferidos em **21/10/2026** com as consultas da aplicação e o catálogo do banco PostgreSQL local. A consulta ao catálogo foi executada em transação somente de leitura, sem consultar dados pessoais nem alterar tabelas. O modelo confirmado contém **9 tabelas, 50 colunas e 13 chaves estrangeiras**; não comprova o estado de outra instalação.
 
-O [dump SQL](../database/dump_banco.sql) reúne a estrutura completa e os dados de demonstração para restauração em banco vazio, incluindo as migrações de artes e cancelamentos. O procedimento com PostgreSQL e `psql` 18.x está no [README principal](../README.md#instalação-e-configuração). As migrações individuais continuam disponíveis para bancos anteriores; elas não substituem a restauração inicial.
+O [dump SQL](../database/dump_banco.sql) reúne a estrutura completa e os dados de demonstração para restauração em banco vazio, incluindo artes e cancelamentos. O procedimento com PostgreSQL e `psql` 18.x está no [README principal](../README.md#instalação-e-configuração).
 
 - [Modelo de dados e legenda](#modelo-de-dados)
 - [Catálogo e preços](#catalogo-e-precos)
@@ -195,7 +195,7 @@ Produto e arte só são descartados pela aplicação quando o produto não é us
 
 As artes possuem CHECK para MIME permitido, tamanho de 1 a 10.485.760 bytes e igualdade entre tamanho informado e comprimento do `BYTEA`. As solicitações aceitam somente `pendente`, `aprovado` e `recusado`. Os preços de carrinho e pedido possuem CHECK não negativo, permitindo `NULL` para valores ainda ausentes. Esses controles não substituem as validações adicionais do PHP.
 
-O dump já contém as tabelas base, [001_artes.sql](../database/migrations/001_artes.sql) e [002_cancelamentos.sql](../database/migrations/002_cancelamentos.sql). Para aplicar somente essas migrações em um banco anterior, as tabelas base precisam existir. Os diagramas documentam o estado confirmado; não criam nem modificam o schema.
+O dump já contém as estruturas de artes e cancelamentos que eram criadas pelos antigos scripts de migração. A instalação documentada usa o dump; os diagramas descrevem o estado confirmado e não criam nem modificam o schema.
 
 <a id="parametros-iniciais"></a>
 
