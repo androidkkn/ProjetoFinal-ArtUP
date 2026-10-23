@@ -1,6 +1,6 @@
 # Banco de dados do ArtUP
 
-Diagramas conferidos em **21/10/2026** com as consultas da aplicação e o catálogo do banco PostgreSQL local. A consulta ao catálogo foi executada em transação somente de leitura, sem consultar dados pessoais nem alterar tabelas. O modelo confirmado contém **9 tabelas, 50 colunas e 13 chaves estrangeiras**; não comprova o estado de outra instalação.
+DER conferido em **23/10/2026** com as consultas da aplicação e o catálogo do banco PostgreSQL configurado no projeto. A consulta ao catálogo foi executada em transação somente de leitura, sem consultar dados pessoais nem alterar tabelas. O modelo confirmado contém **9 tabelas, 50 colunas e 13 chaves estrangeiras**, representadas nos três diagramas abaixo. Tipos, nulabilidade, chaves primárias, unicidade, cardinalidades, índices e regras de exclusão estão de acordo com a estrutura consultada; essa conferência não comprova o estado de outra instalação.
 
 O [dump SQL](../database/dump_banco.sql) reúne a estrutura completa e os dados de demonstração para restauração em banco vazio, incluindo artes e cancelamentos. O procedimento com PostgreSQL e `psql` 18.x está no [README principal](../README.md#instalação-e-configuração).
 
@@ -9,7 +9,6 @@ O [dump SQL](../database/dump_banco.sql) reúne a estrutura completa e os dados 
 - [Clientes, carrinho e pedidos](#clientes-carrinho-pedidos)
 - [Artes e solicitações de cancelamento](#artes-e-cancelamentos)
 - [Integridade e exclusões](#integridade-e-exclusoes)
-- [Parâmetros e exemplos SQL](#parametros-iniciais)
 
 <a id="modelo-de-dados"></a>
 
@@ -28,10 +27,10 @@ Os três diagramas representam o mesmo banco, separados para facilitar a leitura
 
 ```mermaid
 erDiagram
-    categorias ||..o{ tipos_de_produto : "id_categoria"
-    categorias ||..o| precodimensoes : "id_categoria"
-    categorias ||..o{ produto : "id_categoria"
-    tipos_de_produto o|..o{ produto : "id_tipo"
+    categorias ||..o{ tipos_de_produto : "agrupa"
+    categorias ||..o| precodimensoes : "possui"
+    categorias ||..o{ produto : "agrupa"
+    tipos_de_produto o|..o{ produto : "classifica"
 
     categorias {
         INT id PK "NOT NULL; IDENTITY"
@@ -70,11 +69,11 @@ As dimensões de `produto` continuam em **metros**, com tipo `REAL`; formulário
 
 ```mermaid
 erDiagram
-    usuarios ||..o{ carrinho : "id_usuario"
-    usuarios ||..o{ pedido : "id_usuario"
-    produto ||..o| carrinho : "id_produto"
-    produto ||..o{ pedido : "id_produto"
-    pedido o|..o{ carrinho : "id_pedido legado"
+    usuarios ||..o{ carrinho : "possui"
+    usuarios ||..o{ pedido : "faz"
+    produto ||..o| carrinho : "compõe"
+    produto ||..o{ pedido : "compõe"
+    pedido o|..o{ carrinho : "é referenciado por"
 
     usuarios {
         INT id PK "NOT NULL; IDENTITY"
@@ -119,10 +118,10 @@ Não há unicidade de e-mail no banco observado. A coluna `usuarios.senha` armaz
 
 ```mermaid
 erDiagram
-    usuarios ||..o{ artes : "id_usuario"
-    produto o|..o| artes : "id_produto"
-    pedido ||..o{ solicitacoes_cancelamento : "id_pedido"
-    usuarios o|..o{ solicitacoes_cancelamento : "id_administrador"
+    usuarios ||..o{ artes : "envia"
+    produto o|..o| artes : "possui"
+    pedido ||..o{ solicitacoes_cancelamento : "recebe"
+    usuarios o|..o{ solicitacoes_cancelamento : "analisa"
 
     usuarios {
         INT id PK "Referencia; campos completos em outro diagrama"
@@ -196,43 +195,3 @@ Produto e arte só são descartados pela aplicação quando o produto não é us
 As artes possuem CHECK para MIME permitido, tamanho de 1 a 10.485.760 bytes e igualdade entre tamanho informado e comprimento do `BYTEA`. As solicitações aceitam somente `pendente`, `aprovado` e `recusado`. Os preços de carrinho e pedido possuem CHECK não negativo, permitindo `NULL` para valores ainda ausentes. Esses controles não substituem as validações adicionais do PHP.
 
 O dump já contém as estruturas de artes e cancelamentos que eram criadas pelos antigos scripts de migração. A instalação documentada usa o dump; os diagramas descrevem o estado confirmado e não criam nem modificam o schema.
-
-<a id="parametros-iniciais"></a>
-
-## Parâmetros e exemplos SQL
-
-Os exemplos abaixo foram incorporados do antigo arquivo `parametros_principais.pgsql`. São consultas e inserções de referência, não uma migração nem um seed idempotente. Os INSERTs pressupõem as categorias 1 = adesivos, 2 = papelaria, 3 = placas e 4 = banners; repetir as inserções pode duplicar dados. Revise o banco antes de executar qualquer trecho.
-
-```sql
-SELECT * FROM precodimensoes;
-Select * FROM produto;
-SELECT * FROM tipos_de_produto;
-select * from categorias;
-SELECT * FROM usuarios;
-
-
-
-INSERT INTO categorias (nome) VALUES ('adesivos'), ('papelaria'), ('placas'), ('banners');
-INSERT INTO tipos_de_produto (id_categoria, nome, valor_base) VALUES
-(1, 'BOPP', 5.00),
-(1, 'Vinil', 7.50),
-(1, 'Vinil-UV', 10.00),
-
-(4, 'PVC', 2.00),
-(4, 'Barra-de-madeira', 3.00),
-(4, 'Barra-de-aluminho', 4.00),
-(4, 'Ilhós', 2.50),
-
-(2, 'Sulfite', 0.50),
-(2, 'Fotográfico', 1.50),
-(2, 'Couché', 1.00),
-(2, 'Offset', 0.75);
-
-INSERT INTO precodimensoes (id_categoria, valormetro) VALUES
-(1, 0.10),
-(2, 0.05),
-(3, 0.15),
-(4, 0.20);
-
-SELECT valormetro FROM precodimensoes WHERE id_categoria = 1;
-```

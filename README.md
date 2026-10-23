@@ -31,7 +31,7 @@ O painel mostra valores de pedidos, **não pagamentos recebidos ou lucro**. Não
 | PostgreSQL 18.x e ferramentas `psql`, `createuser`, `createdb` | O dump foi gerado na versão 18.6 e contém comandos do cliente `psql`. Não há matriz de compatibilidade testada com outras versões. |
 | Diretórios temporário e de sessão graváveis pelo PHP | Upload HTTP e persistência das sessões. |
 
-A revisão de manutenção foi executada com **PHP CLI 8.5.9**. A versão do servidor PHP/FPM ou banco de produção não foi verificada nesta revisão. Não foi encontrada chamada de produção que exija mbstring; sua presença no ambiente da auditoria histórica não é uma dependência demonstrada do aplicativo atual.
+A revisão de manutenção foi executada com **PHP CLI 8.5.9**. A versão do servidor PHP/FPM ou banco de produção não foi verificada nessa revisão. Não foi encontrada chamada de produção que exija mbstring.
 
 Não há `composer.json`, `package.json`, `vendor/` ou suíte de testes versionada. Composer, Node.js, Superdesign e imagegen não são necessários para executar a aplicação. As duas últimas ferramentas foram usadas para preparar contexto visual e imagens provisórias.
 
@@ -92,10 +92,11 @@ $senha = 'SUA_SENHA';
 Na raiz do repositório:
 
 ```sh
-php -S 127.0.0.1:8000 -t .
+php -S localhost:8000 -t .
 ```
 
-Abra `http://127.0.0.1:8000`. e Faça o login com a conta de demonstração ou cadastre uma nova conta.
+Abra `http://localhost:8000` e faça login com a conta de demonstração ou cadastre uma nova conta.
+
 ### Acesso administrativo de demonstração
 
 Após restaurar o dump, entre com a conta incluída:
@@ -107,57 +108,24 @@ Após restaurar o dump, entre com a conta incluída:
 
 Essas credenciais são públicas e destinadas à demonstração local. O cadastro de novas contas continua criando clientes (`admin=false`). Administradores podem promover ou rebaixar contas em **Administração → Clientes**, usando **Perfil de acesso → Salvar perfil**. O perfil é atualizado na sessão a cada requisição autenticada, inclusive para contas que já estavam conectadas. A própria conta pode virar Cliente quando houver outro administrador; nesse caso, a sessão é atualizada imediatamente e retorna à página inicial. A única conta administrativa não pode ser rebaixada: cadastre e promova outra conta antes.
 
-## Exemplos de uso e contratos atuais
-
 ### Preços
 
-Os exemplos usam **os valores SQL documentados no guia do banco**, não uma leitura das tarifas do banco instalado:
+Exemplos com as tarifas de demonstração de [database/dump_banco.sql](database/dump_banco.sql). Alterações feitas pelo administrador no banco instalado podem produzir outros valores.
 
-| Entrada | Cálculo atual | Resultado |
-| --- | --- | --- |
-| Adesivo BOPP, 200 × 300 cm, 3 unidades; base R$ 5,00 e tarifa R$ 0,10/m² | Área = 6 m²; unidade = 6 × 0,10 + 5,00 | R$ 5,60 por unidade; total R$ 16,80 |
-| Papel sulfite A3, 1 unidade; A4 = R$ 0,50 | A3 = 2 × A4 | R$ 1,00 |
-| Papel sulfite A8, 10 unidades; A4 = R$ 0,50 | Unidade = arredondar(0,50 × 0,0625, 2) | R$ 0,03 por unidade; total R$ 0,30 |
+As medidas são informadas em **centímetros**: área em m² = largura × comprimento ÷ 10.000. O total é o **preço unitário já arredondado × quantidade**.
 
-Adesivos/banners somam o valor base à área × tarifa. Placas usam somente área × tarifa; espessuras de 1, 2 e 3 mm têm a mesma regra. Papelaria usa fatores A1–A8 relativos ao A4. O cálculo usa `NUMERIC` no PostgreSQL e arredonda a unidade antes de multiplicar pela quantidade. Veja [preços](docs/funcionalidades.md#precos).
+| Produto | Medidas / formato | Quantidade | Cálculo por unidade | Preço unitário | Total |
+| --- | --- | ---: | --- | ---: | ---: |
+| Adesivo BOPP | 200 × 300 cm | 3 | Área: 200 × 300 ÷ 10.000 = 6 m²; preço: 6 × R$ 0,10 + R$ 5,00 | R$ 5,60 | R$ 16,80 |
+| Banner PVC | 100 × 200 cm | 2 | Área: 100 × 200 ÷ 10.000 = 2 m²; preço: 2 × R$ 0,20 + R$ 2,00 | R$ 2,40 | R$ 4,80 |
+| Placa de 2 mm | 100 × 200 cm | 3 | Área: 100 × 200 ÷ 10.000 = 2 m²; preço: 2 × R$ 0,15 | R$ 0,30 | R$ 0,90 |
+| Papel sulfite | A3 | 1 | Valor A4: R$ 0,50; fator A3: 2; preço: R$ 0,50 × 2 | R$ 1,00 | R$ 1,00 |
+| Papel sulfite | A8 | 10 | Valor A4: R$ 0,50; fator A8: 0,0625; preço: R$ 0,03125, arredondado para R$ 0,03 | R$ 0,03 | R$ 0,30 |
 
-### Funções sem conexão com o banco
+Adesivos e banners somam o valor base do tipo à área × tarifa por m². Placas usam somente área × tarifa; as espessuras de 1, 2 e 3 mm não têm adicional no código atual. Papelaria usa o valor base A4 multiplicado pelo fator do formato, sem usar a tarifa por m². Os cálculos usam `NUMERIC` no PostgreSQL. Veja as [regras completas de preços](docs/funcionalidades.md#precos).
 
-Este trecho pode ser executado por um script PHP na raiz. `functions_core.php` declara as funções sem abrir conexão:
 
-```php
-<?php
-require __DIR__ . '/include/functions_core.php';
-
-echo formatar_preco('1234.50'); // R$ 1.234,50
-echo formatar_preco(null);      // Não calculado
-echo normalizar_dimensao(' 12,50 '); // 12.50 (string; ainda em cm)
-var_export(validar_inteiro_positivo('3')); // 3 (int)
-var_export(validar_preco('1.999'));         // false
-echo normalizar_email(' ANA@EXAMPLE.COM '); // ana@example.com
-var_export(validar_senha('a1'));            // true: regra atual, não recomendação de segurança
-```
-
-O formatador não arredonda casas extras: `formatar_preco('1.999')` retorna `R$ 1,99`. Esse comportamento foi preservado. Funções de consulta geralmente retornam arrays ou `false`; listas vazias e erros devem ser diferenciados. Consulte cada função antes de alterar seu contrato.
-
-### Rotas e erros
-
-| Requisição/situação | Comportamento definido no código |
-| --- | --- |
-| Administrador acessa `/admin/estatisticas.php?inicio=2026-10-01&fim=2026-10-21` | Painel com os pedidos criados no intervalo, incluindo os dois dias. |
-| Administrador envia `inicio=2026-02-30` ao painel | HTTP 422 e mensagem de datas inválidas; sem consulta de métricas. |
-| Cliente autenticado acessa página administrativa | HTTP 403: `Acesso restrito ao administrador.` |
-| Visitante acessa página protegida | Redirecionamento para login; algumas páginas abrem conexão antes da guarda, portanto falha de banco pode ocorrer primeiro. |
-| Cliente acessa `/app/arte.php?produto=ID` com acesso e arte existente | Download como anexo; MIME, tamanho e nome original vêm do registro validado. |
-| Usuário autenticado pede arte inexistente ou sem permissão | HTTP 404: `Arte não encontrada.` |
-| GET `/login/logout.php` | HTTP 405, `Allow: POST`; a sessão não é encerrada. |
-| Logout por POST com token válido | Limpa sessão/cookie e redireciona ao login com HTTP 303. |
-
-Os formulários de produtos, carrinho, gestão de pedidos e logout usam tokens de sessão. Para reproduzir as ações, use o formulário recebido na mesma sessão. Login e cadastro ainda não validam CSRF. Não há API JSON pública documentada/implementada.
-
-Cancelamento é uma solicitação: só pode ser aberto para pedido próprio pendente ou em produção, com motivo opcional de até 1000 caracteres. Aprovar cancela o pedido; recusar mantém seu status. Excluir pedido é operação administrativa definitiva. Produto e arte são preservados enquanto houver vínculo com outro pedido ou carrinho.
-
-## Estrutura e pontos de entrada
+### Estrutura e pontos de entrada
 
 ```text
 ProjetoFinal-ArtUP/
@@ -190,51 +158,7 @@ ProjetoFinal-ArtUP/
 
 As páginas combinam guarda de sessão, funções com PDO e renderização HTML/redirecionamento. A ordem exata varia: não reordene includes indiscriminadamente. `functions.php` reutiliza `$conexao` quando já é uma instância de PDO; `functions_core.php` pode ser incluído isoladamente em verificações sem banco.
 
-As imagens de produtos e o design system unificado em `css/estilo.css` estão integrados aos templates (`index.php`, catálogo, serviços, carrinho, pedidos e telas administrativas), estendendo o padrão visual e de acessibilidade do painel de estatísticas para toda a aplicação. Os prompts das imagens estão documentados em [img/README.md](img/README.md).
-
-A revisão posterior com Superdesign corrigiu a carga do helper de navegação no cadastro, o campo de upload em telas pequenas e a consistência dos menus. O escopo, a prévia visual e as 52 verificações de página e 32 verificações de contratos/acessibilidade estão em [revisão visual](docs/revisoes.md#revisao-visual).
-
-## Testes e validação
-
-**Não existe suíte automatizada pronta para executar neste checkout.** Os arquivos anteriores foram removidos a pedido; os números da auditoria são históricos. Não há comando confirmado `composer test`, PHPUnit/Pest instalado pelo projeto ou pipeline de CI versionado.
-
-Uma verificação disponível é o lint do PHP. Na raiz, em PowerShell:
-
-```powershell
-$falhou = $false
-Get-ChildItem -Recurse -File -Filter '*.php' |
-    Where-Object { $_.Name -ne 'credenciais.php' -and $_.FullName -notmatch '[\\/](vendor|\.git)[\\/]' } |
-    ForEach-Object {
-        php -l $_.FullName
-        if ($LASTEXITCODE -ne 0) { $falhou = $true }
-    }
-if ($falhou) { throw 'Falha na validação de sintaxe PHP.' }
-```
-
-Em shell POSIX, uma alternativa que também retorna falha se qualquer arquivo falhar:
-
-```sh
-find . -type f -name '*.php' ! -path './vendor/*' ! -path './.git/*' ! -name 'credenciais.php' \
-  -exec sh -c 'for file do php -l "$file" || exit 1; done' sh {} +
-```
-
-Lint verifica sintaxe, não preços, permissões ou transações. Para testes funcionais, use banco isolado ou tabelas temporárias e sessões de teste. Não aponte uma futura suíte destrutiva para `database/credenciais.php` de produção.
-
-Roteiro manual sugerido em ambiente isolado: cadastro/login; prévia dos quatro serviços; alteração de dados após a prévia; upload válido/inválido; remoção e confirmação do carrinho; download autorizado/negado; cancelamento e decisão administrativa; exclusão com produto compartilhado; filtro válido/inválido das estatísticas; logout por GET e POST.
-
-Nesta revisão, os 30 arquivos PHP passaram no lint antes da alteração. Foram comparadas 150 observações antes/depois em roteiro temporário, incluindo consultas/parâmetros, commit/rollback, logs de erro, validações, datas e URLs. Os detalhes, limites e resultado final estão em [revisão de manutenção](docs/revisoes.md#manutencao). Esse roteiro não é suíte versionada nem validação de integração com PostgreSQL real.
-
-## Contribuição e manutenção
-
-- Faça alterações pequenas, separando regras de negócio, apresentação, banco e documentação nos commits.
-- Preserve campos POST/GET, tokens, redirects, códigos HTTP, retornos `false`/`null` e mensagens de erro. Não aplique `strict_types` ou renomeie funções/parâmetros públicos sem analisar os chamadores.
-- Mantenha o cálculo monetário no PostgreSQL com `NUMERIC`; não substitua por `float` no PHP. Entrada em cm, persistência em metros e espessura em mm são contratos diferentes.
-- Preserve a ordem dos bloqueios e as fronteiras de transação. `SQL_EXCLUIR_PRODUTO_SEM_VINCULOS` concentra a condição compartilhada de remoção; os chamadores continuam responsáveis por autorização e commit/rollback.
-- Mudanças de schema exigem migração revisada e validação isolada. Alterar precisão, regras de senha ou autorização constitui mudança funcional, mesmo quando for correção necessária.
-- Atualize o guia específico em `docs/` e este README quando mudar a operação. Relatórios históricos não comprovam o estado de uma nova versão.
-- Antes de publicar, trate os itens de segurança e implantação do backlog. Esta revisão de manutenção não os corrigiu.
-
-Não foram encontrados licença, política formal de contribuição, automação de deploy ou configuração de servidor de produção. Esses pontos precisam ser definidos pelo responsável pelo repositório.
+As imagens de produtos e o design system unificado em `css/estilo.css` estão integrados aos templates (`index.php`, catálogo, serviços, carrinho, pedidos e telas administrativas), estendendo o padrão visual e de acessibilidade do painel de estatísticas para toda a aplicação.
 
 ## Documentação complementar
 
