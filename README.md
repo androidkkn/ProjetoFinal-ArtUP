@@ -21,19 +21,38 @@ O painel mostra valores de pedidos, **não pagamentos recebidos ou lucro**. Não
 
 ## Requisitos
 
-| Requisito | Uso confirmado |
+Para reproduzir o ambiente verificado no projeto, use **PHP 8.5.x** e **PostgreSQL 18.x**. O código utiliza recursos disponíveis desde o PHP 8.0, mas não há uma matriz de compatibilidade validada para versões anteriores à utilizada nas verificações.
+
+| Requisito | Finalidade |
 | --- | --- |
-| PHP com recursos de 8.0 ou posterior | O código usa `match`, `mixed`, union types e `str_contains`. Esse é o mínimo inferido da sintaxe; não há matriz de versões testadas nem versão mínima declarada em manifesto. |
-| PDO e `pdo_pgsql` | Conexão, consultas preparadas e transações PostgreSQL. |
-| Suporte a `PASSWORD_ARGON2ID` | Necessário para cadastrar contas. O cadastro é recusado quando esse suporte está ausente. |
-| Fileinfo e GD | Identificação de MIME e decodificação de PNG/JPEG/WEBP. GD deve suportar esses formatos. |
-| Sessões, Filter, PCRE, JSON e funções de data do PHP | Autenticação, validação e estatísticas. |
-| PostgreSQL 18.x e ferramentas `psql`, `createuser`, `createdb` | O dump foi gerado na versão 18.6 e contém comandos do cliente `psql`. Não há matriz de compatibilidade testada com outras versões. |
-| Diretórios temporário e de sessão graváveis pelo PHP | Upload HTTP e persistência das sessões. |
+| PHP com CLI | Executar a aplicação e iniciar o servidor local com `php -S`. Ambiente conferido: **PHP 8.5.9**. |
+| PDO e [PDO_PGSQL](https://www.php.net/manual/en/ref.pdo-pgsql.php) | Conectar ao PostgreSQL e executar consultas e transações. |
+| PostgreSQL 18.x e cliente [psql 18.x](https://www.postgresql.org/docs/18/app-psql.html) | Restaurar o dump SQL gerado na versão **18.6**, incluindo seus comandos específicos do `psql`. |
+| Git | Clonar o repositório seguindo o tutorial. |
+| Navegador com suporte a HTML5 e CSS Grid/Flexbox | Usar as páginas, formulários e layouts da aplicação. |
 
-A revisão de manutenção foi executada com **PHP CLI 8.5.9**. A versão do servidor PHP/FPM ou banco de produção não foi verificada nessa revisão. Não foi encontrada chamada de produção que exija mbstring.
+Utilize uma [versão do PHP com suporte oficial](https://www.php.net/supported-versions.php). Confira as ferramentas e extensões no terminal:
 
-Não há `composer.json`, `package.json`, `vendor/` ou suíte de testes versionada. Composer, Node.js, Superdesign e imagegen não são necessários para executar a aplicação. As duas últimas ferramentas foram usadas para preparar contexto visual e imagens provisórias.
+```sh
+php -v
+php -m
+php --ini
+psql --version
+```
+
+As extensões devem estar habilitadas no PHP que atende às páginas. Se houver uma instalação separada para o servidor web, confira também o `php.ini` usado por ela.
+
+Para permitir artes de até **10 MiB**, configure o `php.ini` e reinicie o servidor PHP:
+
+```ini
+file_uploads = On
+upload_max_filesize = 10M
+post_max_size = 12M
+```
+
+O formulário aplica o menor limite entre a aplicação e a configuração do PHP, reservando espaço no POST para os demais campos. `memory_limit` também influencia a validação de imagens, que possuem limite de 40 megapixels; valores menores podem exigir arquivos menores.
+
+O projeto não possui dependências de execução gerenciadas por Composer ou npm. Node.js, Superdesign e imagegen foram usados como ferramentas de desenvolvimento e não são necessários para executar a aplicação.
 
 ## Instalação e configuração
 
